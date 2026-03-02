@@ -148,6 +148,7 @@
       background:linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.02));
       display:grid;place-items:center;overflow:hidden;
     }
+    .appIcon img{width:100%;height:100%;object-fit:cover;display:block}
     .appTitle{margin:0;font-size:16px;letter-spacing:.2px}
     .appMeta{margin:4px 0 0;font-size:13px;color:var(--muted)}
     .divider{height:1px;background:var(--line);margin:14px 0}
@@ -156,11 +157,6 @@
     .dot{width:10px;height:10px;border-radius:999px;margin-top:4px;background:linear-gradient(135deg, var(--a2), var(--a3));box-shadow:0 8px 18px rgba(0,0,0,.25)}
 
     .section{margin-top:clamp(18px,3vw,28px);padding-top:clamp(14px,3vw,18px)}
-    .grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:14px}
-    .tile{border-radius:var(--r);border:1px solid var(--line);background:var(--panel);padding:14px;min-height:102px}
-    .tile h3{margin:0 0 6px;font-size:14px;letter-spacing:.2px}
-    .tile p{margin:0;font-size:13px;color:var(--muted)}
-
     .shots{margin-top:14px;display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
     .shot{
       border-radius:18px;border:1px dashed var(--line);
@@ -181,7 +177,6 @@
 
     @media (max-width: 920px){
       .hero{grid-template-columns:1fr}
-      .grid{grid-template-columns:1fr}
       .shots{grid-template-columns:1fr 1fr}
       nav{justify-content:flex-start}
     }
@@ -232,14 +227,12 @@
 
             <a class="btn" href="#support">Support / Contact</a>
           </div>
-
         </div>
 
         <aside class="appCard" aria-label="App details">
           <div class="appTop">
             <div class="appIcon" aria-label="App icon">
-              <!-- TODO: Replace with your icon file: /icon.png -->
-              <span style="font-size:12px;color:var(--muted)">Icon</span>
+              <img src="/assets/app-icon.png" alt="Paws vs Claws app icon" />
             </div>
             <div>
               <p class="appTitle">Paws vs Claws</p>
@@ -265,7 +258,7 @@
           </a>
         </aside>
       </section>
-      
+
       <section class="section" id="screenshots" aria-label="Screenshots">
         <h3 style="margin:0;font-size:16px;letter-spacing:.2px;">Screenshots</h3>
         <p style="margin:8px 0 0;color:var(--muted);font-size:13px;">
@@ -273,13 +266,17 @@
         </p>
 
         <div class="shots" role="list">
-          <div class="shot" role="listitem">Screenshot 1</div>
-          <div class="shot" role="listitem">Screenshot 2</div>
-          <div class="shot" role="listitem">Screenshot 3</div>
+          <div class="shot" role="listitem">
+            <img src="/assets/ph6.png" alt="Paws vs Claws screenshot 1" loading="lazy" />
+          </div>
+          <div class="shot" role="listitem">
+            <img src="/assets/ph5.png" alt="Paws vs Claws screenshot 2" loading="lazy" />
+          </div>
+          <div class="shot" role="listitem">
+            <img src="/assets/ph4.png" alt="Paws vs Claws screenshot 3" loading="lazy" />
+          </div>
         </div>
       </section>
-
-     
     </main>
 
     <footer>
@@ -287,7 +284,6 @@
       <div class="links">
         <a href="https://apps.apple.com/us/app/paws-vs-claws/id6759199023" target="_blank" rel="noopener noreferrer">App Store</a>
         <a href="/privacy.html">Privacy</a>
-      
       </div>
     </footer>
   </div>
