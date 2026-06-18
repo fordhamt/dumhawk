@@ -27,7 +27,9 @@
           color:#c9b8ff; background:rgba(124,92,255,.18); padding:4px 12px; border-radius:999px; margin-bottom:18px; }
   h1 { font-size: 40px; line-height: 1.1; margin: 0 0 10px; letter-spacing: -1px; color:#ffffff; }
   .tag { font-size: 19px; color:#b6b6c2; margin: 0 0 28px; }
-  .cta { display:flex; flex-wrap:wrap; gap:12px; margin: 6px 0 8px; }
+  .cta { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin: 6px 0 8px; }
+  .appstore { display:inline-block; line-height:0; }
+  .appstore img { height:56px; width:auto; }
   .btn { display:inline-block; font-weight:600; padding:12px 22px; border-radius:999px; }
   .btn-primary { background:#7c5cff; color:#ffffff; }
   .btn-primary:hover { text-decoration:none; opacity:.92; }
@@ -50,7 +52,10 @@
   <p class="tag">An endless scroll of the internet's cutest cats and dogs. Heart your favorites, follow the floofs you love, and make your own pet a star.</p>
 
   <div class="cta">
-    <a class="btn btn-primary" href="https://apps.apple.com/app/only-floofs/id6781334218">Download on the App Store</a>
+    <a class="appstore" href="https://apps.apple.com/app/only-floofs/id6781334218" aria-label="Download Only Floofs on the App Store">
+      <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83"
+           alt="Download on the App Store" height="56">
+    </a>
     <a class="btn btn-secondary" href="https://dumhawk.com/only-floofs/support.html">Support</a>
   </div>
 
