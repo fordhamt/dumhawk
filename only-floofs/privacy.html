@@ -3,32 +3,30 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="color-scheme" content="light dark" />
-<title>Privacy Policy — Only Floofs</title>
+<meta name="color-scheme" content="dark" />
+<title>Privacy Policy · Only Floofs</title>
 <style>
-  :root { color-scheme: light dark; }
+  /* Fixed dark theme with locked high-contrast colors (no adaptive light/dark
+     switching, so text never washes out against a light surface). */
   * { box-sizing: border-box; }
+  html, body { background: #0b0b0f; }
   body {
     font: 16px/1.65 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     margin: 0; padding: 0;
-    color: #1c1c22; background: #fafafc;
+    color: #f2f2f7;
   }
-  @media (prefers-color-scheme: dark) {
-    body { color: #ececf1; background: #0d0d11; }
-    a { color: #b39dff; }
-    .card { background: #16161c; }
-  }
-  a { color: #6c47ff; }
+  a { color: #b9a3ff; }
   .wrap { max-width: 760px; margin: 0 auto; padding: 40px 22px 72px; }
-  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.5px; }
-  h2 { font-size: 20px; margin: 34px 0 10px; letter-spacing: -0.2px; }
-  .eff { color: #8a8a96; font-size: 14px; margin: 0 0 28px; }
+  h1 { font-size: 30px; line-height: 1.2; margin: 0 0 6px; letter-spacing: -0.5px; color:#ffffff; }
+  h2 { font-size: 20px; margin: 34px 0 10px; letter-spacing: -0.2px; color:#ffffff; }
+  .eff { color: #9a9aa6; font-size: 14px; margin: 0 0 28px; }
   ul { padding-left: 20px; }
   li { margin: 6px 0; }
-  .card { background: #fff; border-radius: 16px; padding: 4px 24px 24px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
-  footer { margin-top: 40px; color: #8a8a96; font-size: 13px; }
+  .card { background: #15151b; border: 1px solid #23232c; border-radius: 16px; padding: 4px 24px 24px; }
+  footer { margin-top: 40px; color: #8e8e9a; font-size: 13px; }
+  footer a { color:#a9a9b8; }
   .pill { display:inline-block; font-size:12px; font-weight:600; letter-spacing:.4px; text-transform:uppercase;
-          color:#6c47ff; background:rgba(108,71,255,.12); padding:4px 10px; border-radius:999px; margin-bottom:14px; }
+          color:#c9b8ff; background:rgba(124,92,255,.18); padding:4px 12px; border-radius:999px; margin-bottom:14px; }
 </style>
 </head>
 <body>
@@ -51,12 +49,12 @@
     <li><strong>Account information.</strong> If you sign in with Apple, we receive a unique Apple identifier
         for your account, and the name and email you choose to share (Apple may provide a private relay email).
         We use this to create and secure your account.</li>
-    <li><strong>Content you submit.</strong> Photos of your pets and the details you add — pet name, species,
+    <li><strong>Content you submit.</strong> Photos of your pets and the details you add: pet name, species,
         breed, caption, and optional birthday. Photos and pet profiles you post are <strong>public</strong> and
         visible to anyone using the App. We strip location and other EXIF metadata from photos before they are
         published.</li>
     <li><strong>Approximate location.</strong> When you upload a photo, we derive a <strong>coarse, city-level</strong>
-        location (for example, the city — never your precise position or GPS) from your IP address, solely to group
+        location (for example, the city, never your precise position or GPS) from your IP address, solely to group
         posts into regional (city) leaderboards. We do not collect precise location, we never display a pet's
         location on its profile, photos, or feed, and the city is used only in aggregate city rankings. You can
         avoid it entirely by not uploading.</li>
