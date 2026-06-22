@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <meta name="color-scheme" content="dark" />
-<title>DUMHAWK · Only Floofs &amp; Paws vs Claws</title>
+<title>DUMHAWK Â· Only Floofs &amp; Paws vs Claws</title>
 <meta name="description" content="DUMHAWK makes cute iOS apps. Only Floofs is an endless feed of the internet's cutest pets. Paws vs Claws is a fast dogs vs cats arcade game." />
 <meta property="og:title" content="Only Floofs, where pets become famous" />
 <meta property="og:description" content="An endless scroll of the cutest pets. Heart your favorites, follow the floofs you love, and make your own pet a star." />
@@ -42,6 +42,15 @@
   /* Screenshot strip */
   .shots { display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin:26px 0 34px; }
   .shots img { width:210px; filter:drop-shadow(0 12px 30px rgba(0,0,0,.45)); }
+  .phones img, .shots img { cursor:zoom-in; transition:transform .15s ease; }
+  .shots img:hover { transform:translateY(-3px); }
+
+  /* Click-to-enlarge lightbox */
+  #lb { position:fixed; inset:0; background:rgba(0,0,0,.92); display:none; align-items:center; justify-content:center; padding:24px; z-index:999; }
+  #lb.open { display:flex; }
+  #lb img { max-width:min(94vw,520px); max-height:92vh; border-radius:26px; box-shadow:0 24px 70px rgba(0,0,0,.6); }
+  #lb .x { position:absolute; top:14px; right:22px; color:#fff; font-size:34px; line-height:1; cursor:pointer; opacity:.85; }
+  #lb .x:hover { opacity:1; }
 
   /* Paws vs Claws (secondary) */
   .sub { font-size:13px; text-transform:uppercase; letter-spacing:.5px; color:#8e8e9a; font-weight:700; margin:8px 0 12px; }
@@ -76,17 +85,17 @@
         </div>
       </div>
       <div class="phones">
-        <img class="back" src="https://dumhawk.com/assets/floofs/phone-profile.png" alt="Only Floofs pet profile">
-        <img class="front" src="https://dumhawk.com/assets/floofs/phone-swipe-deck.png" alt="Only Floofs swipe deck">
+        <img class="back" src="https://dumhawk.com/assets/floofs/phone-profile.webp" alt="Only Floofs pet profile">
+        <img class="front" src="https://dumhawk.com/assets/floofs/phone-swipe-deck.webp" alt="Only Floofs swipe deck">
       </div>
     </div>
   </section>
 
   <div class="shots">
-    <img src="https://dumhawk.com/assets/floofs/phone-scroll-feed.png" alt="Only Floofs feed">
-    <img src="https://dumhawk.com/assets/floofs/phone-explore-grid.png" alt="Only Floofs explore grid">
-    <img src="https://dumhawk.com/assets/floofs/phone-leaderboard.png" alt="Only Floofs leaderboard">
-    <img src="https://dumhawk.com/assets/floofs/phone-pet-of-the-day.png" alt="Only Floofs pet of the day">
+    <img src="https://dumhawk.com/assets/floofs/phone-scroll-feed.webp" alt="Only Floofs feed">
+    <img src="https://dumhawk.com/assets/floofs/phone-explore-grid.webp" alt="Only Floofs explore grid">
+    <img src="https://dumhawk.com/assets/floofs/phone-leaderboard.webp" alt="Only Floofs leaderboard">
+    <img src="https://dumhawk.com/assets/floofs/phone-pet-of-the-day.webp" alt="Only Floofs pet of the day">
   </div>
 
   <div class="sub">Also from DUMHAWK</div>
@@ -106,5 +115,17 @@
     <a href="https://dumhawk.com/support.html">Support</a>
   </footer>
 </div>
+<div id="lb" aria-hidden="true"><span class="x" aria-label="Close">&times;</span><img alt=""></div>
+<script>
+(function(){
+  var lb=document.getElementById("lb"), im=lb.querySelector("img");
+  function shut(){ lb.classList.remove("open"); im.removeAttribute("src"); }
+  document.querySelectorAll(".phones img, .shots img").forEach(function(t){
+    t.addEventListener("click", function(){ im.src=t.currentSrc||t.src; im.alt=t.alt||""; lb.classList.add("open"); });
+  });
+  lb.addEventListener("click", shut);
+  document.addEventListener("keydown", function(e){ if(e.key==="Escape") shut(); });
+})();
+</script>
 </body>
 </html>
