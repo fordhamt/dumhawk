@@ -52,6 +52,12 @@
   .shots img { width:100%; height:auto; cursor:zoom-in; transition:transform .15s ease; filter:drop-shadow(0 12px 28px rgba(0,0,0,.45)); }
   .shots img:hover { transform:translateY(-4px); }
   @media (max-width:430px){ .shots { gap:12px; } }
+  /* Large screens: one short, wide row of 4 instead of a tall 2x2 */
+  @media (min-width:760px){
+    .shots { grid-template-columns:repeat(4,1fr); gap:16px; max-width:none;
+             width:min(94vw,1000px); position:relative; left:50%; transform:translateX(-50%);
+             margin:36px 0 10px; }
+  }
 
   /* Click-to-enlarge lightbox */
   #lb { position:fixed; inset:0; background:rgba(0,0,0,.92); display:none; align-items:center; justify-content:center; padding:24px; z-index:999; }
