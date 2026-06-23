@@ -24,9 +24,14 @@
   header { display:flex; align-items:center; justify-content:space-between; padding:22px 0; }
   .brand { font-weight:800; letter-spacing:.5px; color:#fff; }
   nav a { color:#cfcfda; margin-left:20px; font-weight:600; }
-  .appstore img { height:54px; width:auto; }
-  .btn { display:inline-block; font-weight:700; padding:14px 24px; border-radius:999px; }
-  .btn-ghost { border:1px solid #34343f; color:#fff; } .btn-ghost:hover { background:#16161c; text-decoration:none; }
+  .appstore { display:inline-flex; }
+  .appstore img { height:54px; width:auto; display:block; }
+  /* Match the App Store badge's height exactly and center contents so the two
+     CTAs line up top and bottom (not just at their centers). */
+  .btn { display:inline-flex; align-items:center; justify-content:center; height:54px; box-sizing:border-box;
+         font-weight:700; padding:0 26px; border-radius:999px; }
+  .btn-ghost { background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.42); color:#fff; backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px); }
+  .btn-ghost:hover { background:rgba(255,255,255,.22); text-decoration:none; }
   .pill { display:inline-block; font-size:12px; font-weight:700; letter-spacing:.5px; text-transform:uppercase;
           padding:5px 13px; border-radius:999px; color:#fff; background:linear-gradient(90deg,#db3eb1,#41B6E6); margin-bottom:18px; }
 
@@ -47,6 +52,7 @@
   .shots img { width:210px; filter:drop-shadow(0 12px 30px rgba(0,0,0,.45)); }
   .phones img, .shots img { cursor:zoom-in; transition:transform .15s ease; }
   .shots img:hover { transform:translateY(-3px); }
+  .dots { display:none; }   /* carousel position dots — shown on mobile only */
 
   /* Click-to-enlarge lightbox */
   #lb { position:fixed; inset:0; background:rgba(0,0,0,.92); display:none; align-items:center; justify-content:center; padding:24px; z-index:999; }
@@ -73,6 +79,10 @@
              padding:0 22px 8px; -webkit-overflow-scrolling:touch; scrollbar-width:none; }
     .shots::-webkit-scrollbar { display:none; }
     .shots img { width:62vw; max-width:300px; flex:0 0 auto; scroll-snap-align:center; }
+    .dots { display:flex; gap:7px; justify-content:center; margin:2px 0 30px; }
+    .dots span { width:7px; height:7px; border-radius:999px; background:rgba(255,255,255,.3);
+                 transition:width .25s ease, background .25s ease; cursor:pointer; }
+    .dots span.on { width:20px; background:#fff; }
     .pvc { flex-direction:column; text-align:center; }
   }
 </style>
@@ -110,6 +120,7 @@
     <img src="https://dumhawk.com/assets/floofs/phone-leaderboard.webp" alt="Only Floofs leaderboard">
     <img src="https://dumhawk.com/assets/floofs/phone-pet-of-the-day.webp" alt="Only Floofs pet of the day">
   </div>
+  <div class="dots" id="shotDots" aria-hidden="true"></div>
 
   <div class="sub">Also from DUMHAWK</div>
   <section class="pvc">
@@ -138,6 +149,28 @@
   });
   lb.addEventListener("click", shut);
   document.addEventListener("keydown", function(e){ if(e.key==="Escape") shut(); });
+})();
+
+// Carousel position dots (mobile). Builds one dot per screenshot, highlights the
+// one nearest the center as you swipe, and scrolls to a shot when its dot is tapped.
+(function(){
+  var shots=document.querySelector(".shots"), box=document.getElementById("shotDots");
+  if(!shots||!box) return;
+  var imgs=[].slice.call(shots.querySelectorAll("img"));
+  imgs.forEach(function(im,i){
+    var d=document.createElement("span");
+    if(i===0) d.className="on";
+    d.addEventListener("click", function(){ im.scrollIntoView({behavior:"smooth", inline:"center", block:"nearest"}); });
+    box.appendChild(d);
+  });
+  var dots=[].slice.call(box.children);
+  function update(){
+    var center=shots.scrollLeft + shots.clientWidth/2, best=0, bd=Infinity;
+    imgs.forEach(function(im,i){ var d=Math.abs((im.offsetLeft+im.clientWidth/2)-center); if(d<bd){bd=d;best=i;} });
+    dots.forEach(function(d,i){ d.classList.toggle("on", i===best); });
+  }
+  shots.addEventListener("scroll", function(){ requestAnimationFrame(update); }, {passive:true});
+  update();
 })();
 </script>
 </body>
