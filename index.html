@@ -22,7 +22,9 @@
   a { color:#c9b8ff; text-decoration:none; } a:hover { text-decoration:underline; }
   .wrap { max-width:1060px; margin:0 auto; padding:0 22px; }
   header { display:flex; align-items:center; justify-content:space-between; padding:22px 0; }
-  .brand { font-weight:800; letter-spacing:.5px; color:#fff; }
+  .brand { display:inline-flex; align-items:center; gap:12px; font-weight:800; font-size:21px; letter-spacing:.5px; color:#fff; }
+  .brand:hover { text-decoration:none; }
+  .brand img { width:42px; height:42px; border-radius:12px; display:block; box-shadow:0 5px 16px rgba(219,62,177,.4); }
   nav a { color:#cfcfda; margin-left:20px; font-weight:600; }
   .appstore { display:inline-flex; }
   .appstore img { height:54px; width:auto; display:block; }
@@ -90,7 +92,7 @@
 <body>
 <div class="wrap">
   <header>
-    <span class="brand">DUMHAWK</span>
+    <a class="brand" href="/"><img src="/assets/icon-192.png" alt="DUMHAWK logo">DUMHAWK</a>
     <nav><a href="#apps">Apps</a><a href="https://dumhawk.com/support.html">Support</a></nav>
   </header>
 
