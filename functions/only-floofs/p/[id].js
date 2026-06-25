@@ -24,8 +24,8 @@ function page(post) {
   const likes = (post?.likes || 0).toLocaleString();
   const title = post ? `${name} on Only Floofs` : "Only Floofs";
   const desc = post
-    ? `${name}${pet.breed ? " · " + pet.breed : ""} has ${hearts} hearts on Only Floofs. Tap to see the photo and get the app.`
-    : "Meet the cutest pets on Only Floofs.";
+    ? "Where pets become famous. 🐾"
+    : "Where pets become famous. Meet the internet's cutest pets.";
   return `<!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
