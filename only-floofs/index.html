@@ -37,76 +37,82 @@
 }
 </script>
 <style>
-  /* Fixed dark theme (on-brand black) with guaranteed contrast, no adaptive
-     light/dark switching, so the text can never wash out against a light surface. */
-  * { box-sizing: border-box; }
-  html, body { background: #0b0b0f; }
-  body {
-    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    margin: 0; padding: 0;
-    color: #f2f2f7;
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font:16px/1.65 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:#f2f2f7;
+    background:
+      radial-gradient(1200px 560px at 50% -6%, rgba(219,62,177,.20), transparent 60%),
+      radial-gradient(900px 520px at 82% 8%, rgba(65,182,230,.14), transparent 55%),
+      #0b0b0f;
+    background-attachment:fixed;min-height:100vh;
   }
-  a { color: #b9a3ff; text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 56px 22px 72px; }
-  .pill { display:inline-block; font-size:12px; font-weight:600; letter-spacing:.4px; text-transform:uppercase;
-          color:#c9b8ff; background:rgba(124,92,255,.18); padding:4px 12px; border-radius:999px; margin-bottom:18px; }
-  h1 { font-size: 40px; line-height: 1.1; margin: 0 0 10px; letter-spacing: -1px; color:#ffffff; }
-  .tag { font-size: 19px; color:#b6b6c2; margin: 0 0 28px; }
-  .cta { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin: 6px 0 8px; }
-  .appstore { display:inline-block; line-height:0; }
-  .appstore img { height:56px; width:auto; }
-  .btn { display:inline-block; font-weight:600; padding:12px 22px; border-radius:999px; }
-  .btn-primary { background:#7c5cff; color:#ffffff; }
-  .btn-primary:hover { text-decoration:none; opacity:.92; }
-  .btn-secondary { border:1px solid #34343f; color:#f2f2f7; }
-  .btn-secondary:hover { text-decoration:none; background:#16161c; }
-  .card { background:#15151b; border:1px solid #23232c; border-radius:16px; padding:24px 26px; margin-top:30px; }
-  h2 { font-size: 22px; margin: 0 0 14px; letter-spacing:-.3px; color:#ffffff; }
-  .feat { margin: 0; padding: 0; list-style: none; }
-  .feat li { margin: 14px 0; padding-left: 30px; position: relative; color:#e3e3ea; }
-  .feat li b { font-weight:600; color:#ffffff; }
-  .feat li::before { content:"🐾"; position:absolute; left:0; top:0; }
-  footer { margin-top: 40px; color: #8e8e9a; font-size: 13px; }
-  footer a { color:#a9a9b8; }
-  .shots { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; max-width:520px; margin:32px auto 6px; }
-  .shots img { width:100%; height:auto; cursor:zoom-in; transition:transform .15s ease; filter:drop-shadow(0 12px 28px rgba(0,0,0,.45)); }
-  .shots img:hover { transform:translateY(-4px); }
-  @media (max-width:430px){ .shots { gap:12px; } }
-  /* Large screens: one short, wide row of 4 instead of a tall 2x2 */
-  @media (min-width:760px){
-    .shots { grid-template-columns:repeat(4,1fr); gap:16px; max-width:none;
-             width:min(94vw,1000px); position:relative; left:50%; transform:translateX(-50%);
-             margin:36px 0 10px; }
-  }
-
-  /* Click-to-enlarge lightbox */
-  #lb { position:fixed; inset:0; background:rgba(0,0,0,.92); display:none; align-items:center; justify-content:center; padding:24px; z-index:999; }
-  #lb.open { display:flex; }
-  #lb img { max-width:min(94vw,520px); max-height:92vh; border-radius:26px; box-shadow:0 24px 70px rgba(0,0,0,.6); }
-  #lb .x { position:absolute; top:14px; right:22px; color:#fff; font-size:34px; line-height:1; cursor:pointer; opacity:.85; }
-  #lb .x:hover { opacity:1; }
+  a{color:#b9a3ff;text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:980px;margin:0 auto;padding:22px 22px 64px}
+  .nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:40px;font-size:14px;font-weight:600}
+  .nav .logo{display:inline-flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:18px;letter-spacing:.5px}
+  .nav .logo img{width:34px;height:34px;border-radius:10px;box-shadow:0 4px 12px rgba(219,62,177,.4)}
+  .nav a.home{color:#b9a3ff}
+  .hero{text-align:center;max-width:680px;margin:0 auto}
+  .pill{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;
+        color:#fff;background:linear-gradient(90deg,#db3eb1,#41b6e6);padding:6px 14px;border-radius:999px;margin-bottom:20px}
+  h1{font-size:clamp(38px,7vw,62px);line-height:1.05;letter-spacing:-1.5px;margin:0 0 16px;font-weight:800;
+     background:linear-gradient(92deg,#ff5fb6,#9b8cff 45%,#41b6e6);-webkit-background-clip:text;background-clip:text;
+     -webkit-text-fill-color:transparent;color:transparent}
+  .tag{font-size:clamp(17px,2.4vw,20px);color:#c4c0d4;margin:0 auto 28px;max-width:560px}
+  .cta{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;align-items:center}
+  .btn-primary{display:inline-block;font-size:17px;font-weight:800;color:#fff;padding:15px 26px;border-radius:14px;
+               background:linear-gradient(90deg,#db3eb1,#41b6e6);box-shadow:0 12px 30px rgba(219,62,177,.40)}
+  .btn-primary:hover{text-decoration:none;opacity:.95}
+  .appstore{line-height:0}.appstore img{height:54px;width:auto}
+  .trust{margin:18px 0 0;color:#8e8e9a;font-size:13.5px}
+  .shots{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;max-width:520px;margin:46px auto 0}
+  .shots img{width:100%;height:auto;cursor:zoom-in;border-radius:22px;transition:transform .18s ease;filter:drop-shadow(0 16px 36px rgba(0,0,0,.5))}
+  .shots img:hover{transform:translateY(-5px)}
+  @media (min-width:760px){ .shots{grid-template-columns:repeat(4,1fr);gap:18px;max-width:none;margin:56px 0 0} }
+  .sec{margin-top:66px}
+  .sec .kicker{font-size:13px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#9a93ad;text-align:center}
+  .sec h2{font-size:clamp(26px,4vw,34px);line-height:1.15;letter-spacing:-.6px;text-align:center;color:#fff;margin:8px 0 28px;font-weight:800}
+  .grid{display:grid;grid-template-columns:1fr;gap:14px}
+  @media (min-width:680px){ .grid{grid-template-columns:1fr 1fr} }
+  .feat{background:#15151b;border:1px solid #23232c;border-radius:18px;padding:22px}
+  .feat .ic{font-size:24px;line-height:1;display:block;margin-bottom:10px}
+  .feat h3{font-size:18px;margin:0 0 6px;color:#fff;font-weight:800;letter-spacing:-.2px}
+  .feat p{margin:0;color:#bdb8cc;font-size:15px;line-height:1.5}
+  .band{margin-top:62px;text-align:center;border-radius:24px;padding:42px 28px;
+        background:linear-gradient(120deg,rgba(219,62,177,.18),rgba(65,182,230,.14));border:1px solid rgba(255,255,255,.08)}
+  .band h2{font-size:clamp(24px,4vw,32px);letter-spacing:-.5px;color:#fff;margin:0 0 8px;font-weight:800}
+  .band p{color:#c4c0d4;margin:0 0 22px}
+  footer{margin-top:54px;color:#8e8e9a;font-size:13px;text-align:center;line-height:1.9}
+  footer a{color:#a9a9b8}
+  #lb{position:fixed;inset:0;background:rgba(0,0,0,.92);display:none;align-items:center;justify-content:center;padding:24px;z-index:999}
+  #lb.open{display:flex}
+  #lb img{max-width:min(94vw,520px);max-height:92vh;border-radius:26px;box-shadow:0 24px 70px rgba(0,0,0,.6)}
+  #lb .x{position:absolute;top:14px;right:22px;color:#fff;font-size:34px;line-height:1;cursor:pointer;opacity:.85}
+  #lb .x:hover{opacity:1}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <nav style="display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;font-size:14px;font-weight:600;">
-    <a href="/" style="display:inline-flex;align-items:center;gap:10px;color:#fff;font-weight:800;font-size:18px;letter-spacing:.5px;text-decoration:none;">
-      <img src="/apple-touch-icon.png" alt="DUMHAWK" style="width:34px;height:34px;border-radius:10px;box-shadow:0 4px 12px rgba(219,62,177,.4);">DUMHAWK
-    </a>
-    <a href="/" style="color:#b9a3ff;text-decoration:none;">← Home</a>
+  <nav class="nav">
+    <a class="logo" href="/"><img src="/apple-touch-icon.png" alt="DUMHAWK">DUMHAWK</a>
+    <a class="home" href="/">Home</a>
   </nav>
-  <span class="pill">Only Floofs</span>
-  <h1>Where pets become famous.</h1>
-  <p class="tag">An endless scroll of the internet's cutest pets. Heart your favorites, follow the floofs you love, and make your own pet a star.</p>
 
-  <div class="cta">
-    <a class="appstore" href="https://apps.apple.com/app/only-floofs/id6781334218" aria-label="Download Only Floofs on the App Store">
-      <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83"
-           alt="Download on the App Store" height="56">
-    </a>
-    <a class="btn btn-secondary" href="https://dumhawk.com/only-floofs/support.html">Support</a>
-  </div>
+  <header class="hero">
+    <span class="pill">🐾 Only Floofs</span>
+    <h1>Where pets become famous.</h1>
+    <p class="tag">An endless scroll of the internet's cutest cats and dogs. Heart your favorites, follow the floofs you love, and make your own pet a star.</p>
+    <div class="cta">
+      <a class="btn-primary" href="https://apps.apple.com/app/only-floofs/id6781334218">Get Only Floofs free</a>
+      <a class="appstore" href="https://apps.apple.com/app/only-floofs/id6781334218" aria-label="Download Only Floofs on the App Store">
+        <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download on the App Store" height="54">
+      </a>
+    </div>
+    <p class="trust">Free on the App Store. No account needed to browse.</p>
+  </header>
 
   <div class="shots">
     <img src="/assets/floofs/phone-swipe-deck.webp" alt="Only Floofs swipe deck">
@@ -115,20 +121,24 @@
     <img src="/assets/floofs/phone-pet-of-the-day.webp" alt="Only Floofs pet of the day">
   </div>
 
-  <div class="card">
-    <h2>What is Only Floofs?</h2>
-    <p>Only Floofs is a never-ending feed of adorable pets. Swipe through real pets,
-       double-tap to shower the ones you love with hearts, follow your favorite floofs, and climb
-       the daily, weekly, and all-time leaderboards, including the charts in your own city.</p>
-    <ul class="feat">
-      <li><b>Scroll the cutest feed around.</b> A full-screen stream of real pets that never runs out.</li>
-      <li><b>Give them all the hearts.</b> Every like and heart lifts your favorites higher.</li>
-      <li><b>Make your pet famous.</b> Post in seconds and rack up fans from around the world.</li>
-      <li><b>Follow pets, not people.</b> The pets are the stars here.</li>
-      <li><b>Safe by design.</b> Every photo clears automatic safety checks before it's ever public.</li>
-      <li><b>No account needed to look.</b> Browse, swipe, and heart freely. Sign in only to post or follow.</li>
-    </ul>
-  </div>
+  <section class="sec">
+    <div class="kicker">What is Only Floofs?</div>
+    <h2>The home for the internet's cutest pets.</h2>
+    <div class="grid">
+      <div class="feat"><span class="ic">📱</span><h3>Scroll the cutest feed around</h3><p>A full-screen stream of real cats and dogs that never runs out.</p></div>
+      <div class="feat"><span class="ic">❤️</span><h3>Give them all the hearts</h3><p>Every like and heart lifts your favorites higher up the charts.</p></div>
+      <div class="feat"><span class="ic">⭐</span><h3>Make your pet famous</h3><p>Post in seconds and rack up fans from around the world.</p></div>
+      <div class="feat"><span class="ic">🏆</span><h3>Climb the leaderboards</h3><p>Daily, weekly, and all-time charts, including your own city.</p></div>
+      <div class="feat"><span class="ic">🛡️</span><h3>Safe by design</h3><p>Every photo clears automatic safety checks before it is ever public.</p></div>
+      <div class="feat"><span class="ic">👀</span><h3>No account needed to look</h3><p>Browse, swipe, and heart freely. Sign in only to post or follow.</p></div>
+    </div>
+  </section>
+
+  <section class="band">
+    <h2>Ready to meet your new favorite floof?</h2>
+    <p>Join the home of the internet's cutest pets.</p>
+    <a class="btn-primary" href="https://apps.apple.com/app/only-floofs/id6781334218">Get Only Floofs free</a>
+  </section>
 
   <footer>
     © 2026 Dumhawk ·
