@@ -7,6 +7,12 @@
 // loads; this serves everyone else (desktop, Android, browsers, link-preview and
 // search bots) and returns a true 200.
 //
+// This page is also the #1 viral surface: a friend taps a shared floof and should
+// IMMEDIATELY see how loved it is and a one-tap way to get the app. So the layout
+// leads with the photo, shows hearts/likes as social proof (not a breed spec), and
+// puts a bold "Get the app" CTA above the fold. Breed stays in the SEO meta only
+// (title/description/JSON-LD) so search indexing isn't hurt.
+//
 // SEO specifics handled here (these were the gaps that kept Google from indexing
 // shared pets as distinct pages):
 //   - per-post <link rel="canonical"> and og:url (was: same /only-floofs/ for all)
@@ -23,6 +29,7 @@ const API = "https://d36iyq17my087a.cloudfront.net";
 const APP_ID = "6781334218";
 const APPSTORE = `https://apps.apple.com/app/only-floofs/id${APP_ID}`;
 const SITE = "https://dumhawk.com";
+const BADGE = "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -39,11 +46,14 @@ function page(post, canonical) {
   const hearts = (post?.hearts || 0).toLocaleString();
   const likes = (post?.likes || 0).toLocaleString();
 
-  // Unique, descriptive title + description per pet (good for search snippets).
-  const descr = breed ? `${breed}` : (species || "pet");
-  const title = post ? `${name} (${descr}) on Only Floofs` : "Only Floofs — Where pets become famous";
+  // The <title> keeps the breed: it powers the browser tab + Google result snippet,
+  // where "name (breed)" is uniquely searchable. The SOCIAL card title (og/twitter)
+  // leads with the pet so a shared link reads warm and human, not like a spec sheet.
+  const descr = breed ? breed : (species || "pet");
+  const pageTitle = post ? `${name} (${descr}) on Only Floofs` : "Only Floofs — Where pets become famous";
+  const cardTitle = post ? `Meet ${name} on Only Floofs 🐾` : "Only Floofs — Where pets become famous";
   const desc = post
-    ? `Meet ${name}${breed ? `, a ${breed}` : ""}, on Only Floofs with ${hearts} hearts and ${likes} likes. See more of the internet's cutest cats and dogs.`
+    ? `${name} has ${hearts} hearts and ${likes} likes on Only Floofs. Join the home of the internet's cutest cats and dogs, heart your favorites, and make your own pet famous.`
     : "An endless feed of the internet's cutest cats and dogs. Heart your favorites, follow the floofs you love, and make your own pet famous.";
 
   // Index real posts; keep unknown/dead ids out of the index (no thin pages).
@@ -73,43 +83,51 @@ function page(post, canonical) {
   return `<!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
-<title>${esc(title)}</title>
+<title>${esc(pageTitle)}</title>
 <meta name="description" content="${esc(desc)}">
 <meta name="robots" content="${robots}">
 <link rel="canonical" href="${esc(canonical)}">
 <meta name="apple-itunes-app" content="app-id=${APP_ID}, app-clip-bundle-id=com.onlyfloofs.app.Clip">
 <meta property="og:site_name" content="Only Floofs">
-<meta property="og:title" content="${esc(title)}">
+<meta property="og:title" content="${esc(cardTitle)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:type" content="website">
 <meta property="og:image" content="${esc(img)}">
 <meta property="og:image:alt" content="${esc(name)}${breed ? esc(` the ${breed}`) : ""}">
 <meta property="og:url" content="${esc(canonical)}">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${esc(title)}">
+<meta name="twitter:title" content="${esc(cardTitle)}">
 <meta name="twitter:description" content="${esc(desc)}">
 <meta name="twitter:image" content="${esc(img)}">
 ${ld ? `<script type="application/ld+json">${JSON.stringify(ld)}</script>` : ""}
 <style>
 *{box-sizing:border-box}html,body{margin:0;background:#0b0b0f}
 body{font:16px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#f2f2f7}
-.wrap{max-width:560px;margin:0 auto;padding:40px 22px 64px;text-align:center}
+.wrap{max-width:480px;margin:0 auto;padding:28px 22px 40px;text-align:center}
 .pill{display:inline-block;font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#fff;
- background:linear-gradient(90deg,#db3eb1,#41b6e6);padding:5px 13px;border-radius:999px;margin-bottom:22px}
-.photo{width:100%;aspect-ratio:1/1;object-fit:cover;border-radius:20px;border:1px solid #23232c;display:block}
-.ident{margin:18px 0 4px}.name{font-size:24px;font-weight:800;color:#fff}.breed{color:#b6b6c2}
-.counts{color:#b6b6c2;margin:10px 0}.counts b{color:#fff}
-.cta{margin-top:24px}.cta img{height:54px}
-a{color:#b9a3ff;text-decoration:none}.muted{color:#8e8e9a;font-size:13px;margin-top:28px}
+ background:linear-gradient(90deg,#db3eb1,#41b6e6);padding:5px 13px;border-radius:999px;margin-bottom:18px}
+.photo{width:100%;max-width:300px;aspect-ratio:1/1;object-fit:cover;border-radius:20px;border:1px solid #23232c;display:block;margin:0 auto}
+.name{font-size:26px;font-weight:800;color:#fff;margin:16px 0 8px}
+.stats{display:flex;gap:18px;justify-content:center;align-items:center;font-size:17px;color:#d6d6df;margin-bottom:18px}
+.stats b{color:#fff;font-weight:800}
+.btn{display:block;max-width:320px;margin:0 auto;padding:15px 22px;border-radius:14px;font-size:17px;font-weight:800;color:#fff;
+ background:linear-gradient(90deg,#db3eb1,#41b6e6);box-shadow:0 8px 22px rgba(219,62,177,.35)}
+.tagline{color:#b6b6c2;font-size:14px;max-width:340px;margin:16px auto 0}
+.badge{display:inline-block;margin-top:14px}.badge img{height:46px}
+a{color:#b9a3ff;text-decoration:none}.muted{color:#8e8e9a;font-size:13px;margin-top:26px}
 </style></head><body><div class="wrap">
 <span class="pill">Only Floofs</span>
 ${post ? `
-<img class="photo" src="${esc(img)}" alt="${esc(name)}${breed ? esc(` the ${breed}`) : ""}" width="560" height="560">
-<div class="ident"><h1 class="name">${esc(name)}</h1><div class="breed">${esc(breed)}</div></div>
-<div class="counts"><b>${hearts}</b> hearts · <b>${likes}</b> likes</div>` : `
-<h1 style="color:#fff">Meet the cutest pets on the internet.</h1>
-<p style="color:#b6b6c2">Get Only Floofs to see this floof, heart it, and follow along.</p>`}
-<div class="cta"><a href="${esc(APPSTORE)}"><img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download Only Floofs on the App Store"></a></div>
+<img class="photo" src="${esc(img)}" alt="${esc(name)}${breed ? esc(` the ${breed}`) : ""}" width="300" height="300">
+<h1 class="name">${esc(name)}</h1>
+<div class="stats"><span>❤️ <b>${hearts}</b> hearts</span><span>🐾 <b>${likes}</b> likes</span></div>
+<a class="btn" href="${esc(APPSTORE)}">Get Only Floofs — Free</a>
+<p class="tagline">See ${esc(name)} and thousands more pets. Heart your favorites and make your own floof famous.</p>
+<a class="badge" href="${esc(APPSTORE)}"><img src="${BADGE}" alt="Download Only Floofs on the App Store"></a>` : `
+<h1 class="name">Meet the cutest pets on the internet.</h1>
+<p class="tagline">Get Only Floofs to see this floof, heart it, and follow along.</p>
+<a class="btn" href="${esc(APPSTORE)}">Get Only Floofs — Free</a>
+<a class="badge" href="${esc(APPSTORE)}"><img src="${BADGE}" alt="Download Only Floofs on the App Store"></a>`}
 <p class="muted"><a href="${SITE}/only-floofs/">Only Floofs</a> · <a href="${SITE}/only-floofs/support.html">Support</a></p>
 </div></body></html>`;
 }
