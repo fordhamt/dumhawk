@@ -7,20 +7,16 @@
 // loads; this serves everyone else (desktop, Android, browsers, link-preview and
 // search bots) and returns a true 200.
 //
-// DESIGN: this is a phone-sized "bite", NOT a mini website. A friend taps a shared
-// floof from a text and sees one tidy card: the pet's photo, name, and love, plus a
-// single install CTA. No scrolling marketing page. The pet is the star.
+// DESIGN: a phone-sized "bite", NOT a mini website. One tidy card: a small Only
+// Floofs wordmark up top (the app icon, not the umbrella DUMHAWK mark), the pet
+// photo with its name + love overlaid, and the official App Store badge. The brand
+// name appears exactly ONCE (the header) so it reads clean, not spammy.
 //
-// Robustness: the pet is the whole point of the link, so we never want a transient
-// API blip to drop it. We retry the fetch once and we do NOT edge-cache the no-pet
-// fallback, so a shared pet can never freeze on the generic page.
+// Robustness: the pet is the whole point, so we retry the fetch and never cache the
+// no-pet fallback, so a shared pet can't freeze on the generic page.
 //
-// SEO (kept in <head> only; the visible card stays a bite):
-//   - per-post <link rel="canonical"> + og:url, unique <title>/description (name+breed)
-//   - JSON-LD ImageObject + a SoftwareApplication install hook
-//   - Apple Smart App Banner; robots: index real posts, noindex unknown ids
-//
-// Copy: the install CTA intentionally uses an em dash ("Get Only Floofs — Free").
+// SEO lives in <head> only (canonical/og/twitter/JSON-LD, name+breed); the visible
+// card stays a bite.
 //
 // Deploy: this file lives at  functions/only-floofs/p/[id].js  in the GitHub repo
 // Cloudflare Pages builds dumhawk.com from. The copy in the Only-Paws repo
@@ -30,7 +26,10 @@ const API = "https://d36iyq17my087a.cloudfront.net";
 const APP_ID = "6781334218";
 const APPSTORE = `https://apps.apple.com/app/only-floofs/id${APP_ID}`;
 const SITE = "https://dumhawk.com";
-const ICON = `${SITE}/apple-touch-icon.png`;
+// The actual Only Floofs app icon (App Store artwork), not the DUMHAWK site icon.
+const ICON = "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/1f/13/e1/1f13e100-24bd-728e-a871-36814f0c9526/AppIcon-0-0-1x_U007epad-0-1-85-220.png/120x120bb.jpg";
+// Official Apple "Download on the App Store" badge.
+const BADGE = "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83";
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -76,26 +75,26 @@ function page(post, canonical) {
     }
   } : null;
 
+  const store = `<a class="store" href="${esc(APPSTORE)}" aria-label="Download Only Floofs on the App Store"><img src="${BADGE}" alt="Download on the App Store"></a>`;
+
   const card = post ? `
   <div class="card">
-    <div class="brand"><img src="${ICON}" alt=""><span>Only Floofs</span></div>
+    <div class="brand"><img src="${ICON}" alt="" width="30" height="30"><span>Only Floofs</span></div>
     <div class="frame">
       <img class="photo" src="${esc(photo)}" alt="${esc(name)}${breed ? esc(` the ${breed}`) : ""}" width="360" height="360">
       <div class="scrim"></div>
-      <span class="tag">Only Floofs</span>
       <div class="meta">
         <div class="name">${esc(name)}</div>
         <div class="stats"><span>❤️ <b>${hearts}</b></span><span>🐾 <b>${likes}</b></span></div>
       </div>
     </div>
-    <a class="cta" href="${esc(APPSTORE)}">Get Only Floofs — Free</a>
-    <p class="sub">Free on the App Store. Tap to meet ${esc(name)} and more.</p>
+    ${store}
+    <p class="sub">Tap to meet ${esc(name)} and thousands more pets.</p>
   </div>` : `
   <div class="card">
-    <div class="brand"><img src="${ICON}" alt=""><span>Only Floofs</span></div>
+    <div class="brand"><img src="${ICON}" alt="" width="30" height="30"><span>Only Floofs</span></div>
     <h1 class="headline">Meet the cutest pets on the internet.</h1>
-    <a class="cta" href="${esc(APPSTORE)}">Get Only Floofs — Free</a>
-    <p class="sub">Free on the App Store.</p>
+    ${store}
   </div>`;
 
   return `<!DOCTYPE html><html lang="en"><head>
@@ -129,22 +128,19 @@ body{font:16px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Ro
   #0b0b0f;
  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:22px}
 .card{width:100%;max-width:360px;text-align:center}
-.brand{display:inline-flex;align-items:center;gap:8px;margin-bottom:16px}
-.brand img{width:28px;height:28px;border-radius:8px;box-shadow:0 3px 10px rgba(219,62,177,.45)}
-.brand span{font-size:15px;font-weight:800;letter-spacing:.3px;color:#fff}
+.brand{display:inline-flex;align-items:center;gap:9px;margin-bottom:16px}
+.brand img{width:30px;height:30px;border-radius:8px}
+.brand span{font-size:16px;font-weight:800;letter-spacing:.2px;color:#fff}
 .frame{position:relative;border-radius:24px;overflow:hidden;border:1px solid rgba(255,255,255,.08);box-shadow:0 22px 60px rgba(0,0,0,.55)}
 .photo{display:block;width:100%;aspect-ratio:1/1;object-fit:cover}
 .scrim{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 46%,rgba(0,0,0,.82))}
-.tag{position:absolute;top:12px;left:12px;font-size:10px;font-weight:800;letter-spacing:.5px;text-transform:uppercase;color:#fff;
- background:linear-gradient(90deg,#db3eb1,#41b6e6);padding:4px 10px;border-radius:999px;box-shadow:0 3px 10px rgba(0,0,0,.3)}
 .meta{position:absolute;left:16px;right:16px;bottom:14px;text-align:left}
 .name{font-size:27px;font-weight:800;letter-spacing:-.3px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.55);margin-bottom:7px}
 .stats{display:flex;gap:14px;font-size:14px;color:#fff}
 .stats b{font-weight:800}
 .headline{font-size:24px;font-weight:800;letter-spacing:-.3px;color:#fff;margin:18px 0 4px}
-.cta{display:block;margin-top:18px;padding:15px 18px;border-radius:14px;font-size:17px;font-weight:800;color:#fff;text-decoration:none;
- background:linear-gradient(90deg,#db3eb1,#41b6e6);box-shadow:0 10px 26px rgba(219,62,177,.38)}
-.cta:hover{opacity:.95}
+.store{display:inline-block;margin-top:18px;line-height:0}
+.store img{height:52px;width:auto}
 .sub{margin:12px 0 0;color:#9a93ad;font-size:12.5px}
 a{color:#b9a3ff;text-decoration:none}
 </style></head><body>${card}</body></html>`;
@@ -152,14 +148,21 @@ a{color:#b9a3ff;text-decoration:none}
 
 async function fetchPost(id) {
   const url = `${API}/posts/${encodeURIComponent(id)}`;
-  try {
-    // Cache hits briefly; never edge-cache errors (a transient 404/5xx/rate-limit must
-    // not poison the share card). On any failure, retry once fresh (bypassing the edge
-    // cache) so a shared pet still resolves to its real photo + name.
-    let r = await fetch(url, { cf: { cacheTtlByStatus: { "200-299": 60, "404": 5, "500-599": 0 } } });
-    if (!r.ok) r = await fetch(url + (url.includes("?") ? "&" : "?") + "_r=1", { cf: { cacheTtl: 0 } });
-    if (r.ok) return await r.json();
-  } catch { /* fall through to the generic brand page */ }
+  // The pet is the whole point of the link, so be stubborn about resolving it. The
+  // API can briefly return an empty/throttled body (rate limits, crawler bursts on a
+  // popular link); a successful body is cached 5 min at the edge so popular links
+  // barely touch the origin, and we retry a few times before giving up. Errors are
+  // never cached, and the caller does not cache the no-pet fallback either, so a
+  // shared pet self-heals on the very next view.
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try {
+      const r = await fetch(url, { cf: { cacheTtlByStatus: { "200-299": 300, "404": 5, "500-599": 0 } } });
+      if (r.ok) {
+        const text = await r.text();
+        if (text && text.trim()) { try { return JSON.parse(text); } catch { /* malformed; retry */ } }
+      }
+    } catch { /* network blip; retry */ }
+  }
   return null;
 }
 
