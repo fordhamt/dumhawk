@@ -30,6 +30,10 @@ const SITE = "https://dumhawk.com";
 const ICON = "https://is1-ssl.mzstatic.com/image/thumb/Purple211/v4/1f/13/e1/1f13e100-24bd-728e-a871-36814f0c9526/AppIcon-0-0-1x_U007epad-0-1-85-220.png/120x120bb.jpg";
 // Official Apple "Download on the App Store" badge.
 const BADGE = "https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83";
+// Stat icons in the app's brand colors (dark-theme variants): heart = flamingo pink,
+// paw = mint/teal — so they match the in-app reaction colors instead of grey emoji.
+const HEART = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF4D86" d="M12 21s-7.5-4.9-10-9.2C.4 8.9 1.7 5.5 5 5.5c2 0 3.2 1.2 4 2.3.8-1.1 2-2.3 4-2.3 3.3 0 4.6 3.4 3 6.3C19.5 16.1 12 21 12 21z"/></svg>`;
+const PAW = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="#1FEFC0"><ellipse cx="5.5" cy="11" rx="2" ry="2.6"/><ellipse cx="9.5" cy="6.8" rx="2" ry="2.7"/><ellipse cx="14.5" cy="6.8" rx="2" ry="2.7"/><ellipse cx="18.5" cy="11" rx="2" ry="2.6"/><path d="M12 11.4c-2.6 0-4.8 1.9-5.2 4.3-.3 1.7 1 3.3 2.7 3.3.9 0 1.7-.5 2.5-.5s1.6.5 2.5.5c1.7 0 3-1.6 2.7-3.3-.4-2.4-2.6-4.3-5.2-4.3z"/></svg>`;
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -85,7 +89,7 @@ function page(post, canonical) {
       <div class="scrim"></div>
       <div class="meta">
         <div class="name">${esc(name)}</div>
-        <div class="stats"><span>❤️ <b>${hearts}</b></span><span>🐾 <b>${likes}</b></span></div>
+        <div class="stats"><span>${HEART}<b>${hearts}</b></span><span>${PAW}<b>${likes}</b></span></div>
       </div>
     </div>
     ${store}
@@ -136,7 +140,9 @@ body{font:16px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Ro
 .scrim{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 46%,rgba(0,0,0,.82))}
 .meta{position:absolute;left:16px;right:16px;bottom:14px;text-align:left}
 .name{font-size:27px;font-weight:800;letter-spacing:-.3px;color:#fff;text-shadow:0 2px 12px rgba(0,0,0,.55);margin-bottom:7px}
-.stats{display:flex;gap:14px;font-size:14px;color:#fff}
+.stats{display:flex;gap:16px;font-size:14px;color:#fff}
+.stats span{display:inline-flex;align-items:center;gap:5px}
+.stats .ic{width:15px;height:15px;display:block}
 .stats b{font-weight:800}
 .headline{font-size:24px;font-weight:800;letter-spacing:-.3px;color:#fff;margin:18px 0 4px}
 .store{display:inline-block;margin-top:18px;line-height:0}
