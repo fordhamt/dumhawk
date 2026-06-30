@@ -38,7 +38,7 @@ const PAW = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="#1FEFC
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
-function page(post, canonical) {
+function page(post, canonical, related = []) {
   const pet = post?.pet || {};
   const name = pet.name || "A floof";
   const breed = pet.breed || "";
@@ -81,11 +81,28 @@ function page(post, canonical) {
 
   const store = `<a class="store" href="${esc(APPSTORE)}" aria-label="Download Only Floofs on the App Store"><img src="${BADGE}" alt="Download on the App Store"></a>`;
 
+  // Pinterest "Save" — pet photos are catnip on Pinterest (a visual search engine
+  // that drives huge cute-cats/dog-pics traffic). One tap pins the photo back to
+  // this page; the data-pin-description on the <img> feeds the browser hover-save.
+  const pinDesc = `${name}${breed ? ` the ${breed}` : ""} on Only Floofs`;
+  const pin = post ? `<a class="pin" href="https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent(canonical)}&media=${encodeURIComponent(photo)}&description=${encodeURIComponent(pinDesc)}" target="_blank" rel="nofollow noopener">Save to Pinterest</a>` : "";
+
+  // Related pets of the same species + a link to the matching gallery, so the
+  // page links onward instead of dead-ending.
+  const sp = String(species).toLowerCase();
+  const galleryLink = sp === "cat" ? "/only-floofs/cats" : sp === "dog" ? "/only-floofs/dogs" : "/not-only-paws";
+  const galleryLabel = sp === "cat" ? "More cute cat pictures" : sp === "dog" ? "More cute dog pictures" : "It's not only paws";
+  const more = (post && related.length) ? `<div class="more">
+    <div class="more-h">More cute ${esc(sp || "pet")}s</div>
+    <div class="more-grid">${related.map((r) => `<a href="/only-floofs/p/${esc(encodeURIComponent(r.id))}" title="${esc(r.name)}"><img loading="lazy" src="${esc(r.img)}" alt="Cute ${esc(sp || "pet")} named ${esc(r.name)}" width="84" height="84" data-pin-description="${esc(r.name)} on Only Floofs"></a>`).join("")}</div>
+    <p class="more-links"><a href="${galleryLink}">${esc(galleryLabel)}</a></p>
+  </div>` : "";
+
   const card = post ? `
   <div class="card">
     <div class="brand"><img src="${ICON}" alt="" width="30" height="30"><span>Only Floofs</span></div>
     <div class="frame">
-      <img class="photo" src="${esc(photo)}" alt="${esc(name)}${breed ? esc(` the ${breed}`) : ""}" width="360" height="360">
+      <img class="photo" src="${esc(photo)}" alt="${esc(name)}${breed ? esc(` the ${breed}`) : ""}" width="360" height="360" data-pin-description="${esc(pinDesc)}">
       <div class="scrim"></div>
       <div class="meta">
         <div class="name">${esc(name)}</div>
@@ -94,6 +111,7 @@ function page(post, canonical) {
     </div>
     ${store}
     <p class="sub">Tap to meet ${esc(name)} and thousands more pets.</p>
+    ${pin}
   </div>` : `
   <div class="card">
     <div class="brand"><img src="${ICON}" alt="" width="30" height="30"><span>Only Floofs</span></div>
@@ -149,7 +167,15 @@ body{font:16px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Ro
 .store img{height:52px;width:auto}
 .sub{margin:12px 0 0;color:#9a93ad;font-size:12.5px}
 a{color:#b9a3ff;text-decoration:none}
-</style></head><body>${card}</body></html>`;
+.col{display:flex;flex-direction:column;align-items:center;gap:24px;width:100%;max-width:360px}
+.pin{display:inline-block;margin-top:9px;color:#b9a3ff;font-size:12.5px}
+.more{width:100%;text-align:center}
+.more-h{font-size:12px;color:#9a93ad;margin-bottom:10px;text-transform:uppercase;letter-spacing:.07em}
+.more-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.more-grid a{display:block;border-radius:12px;overflow:hidden;aspect-ratio:1/1;background:#15151b}
+.more-grid img{width:100%;height:100%;object-fit:cover;display:block}
+.more-links{margin:12px 0 0;font-size:13px}
+</style></head><body><main class="col">${card}${more}</main></body></html>`;
 }
 
 async function fetchPost(id) {
@@ -172,14 +198,39 @@ async function fetchPost(id) {
   return null;
 }
 
+// A few more pets of the same species to link to, so the page isn't a dead end:
+// deepens internal linking + crawl paths and gives the visitor somewhere to go.
+async function fetchRelated(post, excludeId, want = 6) {
+  const species = String(post?.pet?.species || post?.species || "").toLowerCase();
+  try {
+    const r = await fetch(`${API}/feed?limit=60`, { cf: { cacheTtl: 600 } });
+    if (!r.ok) return [];
+    const batch = await r.json();
+    if (!Array.isArray(batch)) return [];
+    const out = [];
+    for (const p of batch) {
+      const pid = p.id || p.postId;
+      if (!pid || pid === excludeId) continue;
+      const sp = String(p.species || p.pet?.species || "").toLowerCase();
+      if (species && sp !== species) continue;
+      const img = p.thumbURL || p.imageURL || p.pet?.avatarURL;
+      if (!img) continue;
+      out.push({ id: pid, name: p.pet?.name || p.name || "A floof", img });
+      if (out.length >= want) break;
+    }
+    return out;
+  } catch { return []; }
+}
+
 export const onRequestGet = async ({ params }) => {
   const id = params?.id ? decodeURIComponent(params.id) : null;
   const canonical = `${SITE}/only-floofs/p/${encodeURIComponent(id || "")}`;
   const post = id ? await fetchPost(id) : null;
+  const related = post ? await fetchRelated(post, id) : [];
   // A real pet page edge-caches; the generic fallback caches only briefly so a
   // transient API blip can never freeze a shared pet on the no-pet page.
   const cache = post ? "public, max-age=60, s-maxage=300" : "public, max-age=10, s-maxage=10";
-  return new Response(page(post, canonical), {
+  return new Response(page(post, canonical, related), {
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": cache },
   });
 };
