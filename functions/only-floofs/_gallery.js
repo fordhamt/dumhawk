@@ -179,7 +179,7 @@ function jsonld(c, canonical, pets) {
   }));
   const out = [
     {
-      "@context": "https://schema.org", "@type": "CollectionPage", "name": c.h1, "description": c.desc, "url": canonical,
+      "@context": "https://schema.org", "@type": "CollectionPage", "name": c.h1, "description": c.desc, "url": canonical, "publisher": { "@type": "Organization", "name": "Only Floofs", "url": `${SITE}/only-floofs/`, "logo": `${SITE}/apple-touch-icon.png` },
       "isPartOf": { "@type": "MobileApplication", "name": "Only Floofs", "applicationCategory": "PhotoApplication", "operatingSystem": "iOS", "installUrl": APPSTORE, "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" } },
       "mainEntity": { "@type": "ItemList", "numberOfItems": items.length, "itemListElement": items },
     },
@@ -207,8 +207,8 @@ function buildPage(c, allPets, opts = {}) {
   const robots = opts.robots || "index,follow";
 
   const tiles = pets.map((p) => {
-    const kind = p.breed ? `${p.breed} ` : (p.species ? `${p.species} ` : "");
-    const alt = `Cute ${kind}named ${p.name}`;
+    const desc = [p.breed, p.species].filter(Boolean).join(" ") || "pet";
+    const alt = `Cute ${desc} named ${p.name}`;
     return `<a class="tile" href="/only-floofs/p/${esc(encodeURIComponent(p.id))}" title="${esc(p.name)}${p.breed ? esc(` the ${p.breed}`) : ""}">
       <img loading="lazy" src="${esc(p.img)}" alt="${esc(alt)}" width="300" height="300" data-pin-description="${esc(alt)} on Only Floofs">
       <span class="cap"><b>${esc(p.name)}</b>${p.breed ? `<i>${esc(p.breed)}</i>` : ""}</span></a>`;
