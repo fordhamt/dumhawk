@@ -1,0 +1,3 @@
+# Advertise machine-readable resources to AI agents (RFC 8288 Link headers).
+/*
+  Link: </llms.txt>; rel="describedby"; type="text/markdown"

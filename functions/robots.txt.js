@@ -20,6 +20,7 @@ const SITE = "https://dumhawk.com";
 export const onRequestGet = async () =>
   new Response(
     `User-agent: *
+Content-Signal: search=yes, ai-input=yes, ai-train=yes
 Allow: /
 
 Sitemap: ${SITE}/sitemap.xml
