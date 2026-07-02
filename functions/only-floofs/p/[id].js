@@ -75,7 +75,7 @@ function page(post, canonical, related = []) {
       "applicationCategory": "PhotoApplication",
       "operatingSystem": "iOS",
       "installUrl": APPSTORE,
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }, "author": { "@type": "Person", "name": "Paul Fordham" }, "creator": { "@type": "Person", "name": "Paul Fordham" }, "publisher": { "@type": "Organization", "name": "dumhawk", "url": SITE, "founder": { "@type": "Person", "name": "Paul Fordham" } }
     }
   } : null;
 
@@ -125,7 +125,7 @@ function page(post, canonical, related = []) {
 <link rel="icon" href="${SITE}/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="${ICON}">
 <title>${esc(pageTitle)}</title>
-<meta name="description" content="${esc(desc)}">
+<meta name="description" content="${esc(desc)}"><meta name="author" content="Paul Fordham">
 <meta name="robots" content="${robots}">
 <link rel="canonical" href="${esc(canonical)}">
 <meta name="apple-itunes-app" content="app-id=${APP_ID}, app-clip-bundle-id=com.onlyfloofs.app.Clip">
