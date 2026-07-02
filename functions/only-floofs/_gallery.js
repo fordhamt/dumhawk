@@ -180,7 +180,7 @@ function jsonld(c, canonical, pets) {
   const out = [
     {
       "@context": "https://schema.org", "@type": "CollectionPage", "name": c.h1, "description": c.desc, "url": canonical, "publisher": { "@type": "Organization", "name": "Only Floofs", "url": `${SITE}/only-floofs/`, "logo": `${SITE}/apple-touch-icon.png` },
-      "isPartOf": { "@type": "MobileApplication", "name": "Only Floofs", "applicationCategory": "PhotoApplication", "operatingSystem": "iOS", "installUrl": APPSTORE, "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" } },
+      "isPartOf": { "@type": "MobileApplication", "name": "Only Floofs", "applicationCategory": "PhotoApplication", "operatingSystem": "iOS", "installUrl": APPSTORE, "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }, "author": { "@type": "Person", "name": "Paul Fordham" }, "creator": { "@type": "Person", "name": "Paul Fordham" }, "publisher": { "@type": "Organization", "name": "dumhawk", "url": SITE, "founder": { "@type": "Person", "name": "Paul Fordham" } } },
       "mainEntity": { "@type": "ItemList", "numberOfItems": items.length, "itemListElement": items },
     },
     {
@@ -234,7 +234,7 @@ function buildPage(c, allPets, opts = {}) {
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="${SITE}/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="${ICON}">
 <title>${esc(page > 1 ? `${c.title} (page ${page})` : c.title)}</title>
-<meta name="description" content="${esc(c.desc)}">
+<meta name="description" content="${esc(c.desc)}"><meta name="author" content="Paul Fordham">
 <meta name="keywords" content="${esc(c.kw)}">
 <meta name="robots" content="${robots}">
 <link rel="canonical" href="${esc(canonical)}">
