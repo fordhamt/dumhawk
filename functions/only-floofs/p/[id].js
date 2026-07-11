@@ -64,10 +64,13 @@ const ldJson = (o) => JSON.stringify(o)
   .replace(/>/g, "\\u003e")
   .replace(/&/g, "\\u0026");
 
-// PRIVACY TOGGLE: the API already publishes city/region on the public post and the
-// app shows it — but putting it on a Google-indexed page is a step further. Flip to
-// false and every location mention (visible text + JSON-LD contentLocation) is gone.
-const SHOW_LOCATION = true;
+// PRIVACY: OFF on purpose. The API publishes city/region and the app shows it, but
+// putting a user's city into a Google-INDEXED page is a meaningfully bigger exposure
+// than showing it in-app — a stranger could search a pet and get a town. The owner
+// never consented to that. We give up a little per-page uniqueness for it; the
+// caption + breed + Pet-of-the-Day facts carry enough on their own.
+// Flip to true only if users are actually told their location becomes searchable.
+const SHOW_LOCATION = false;
 
 // NOTE: format in UTC on purpose. A date-only value like luckyDate "2026-07-09"
 // parses as UTC midnight, so formatting it in a negative-offset local zone renders
