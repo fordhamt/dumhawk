@@ -7,16 +7,32 @@
 // loads; this serves everyone else (desktop, Android, browsers, link-preview and
 // search bots) and returns a true 200.
 //
-// DESIGN: a phone-sized "bite", NOT a mini website. One tidy card: a small Only
-// Floofs wordmark up top (the app icon, not the umbrella DUMHAWK mark), the pet
-// photo with its name + love overlaid, and the official App Store badge. The brand
-// name appears exactly ONCE (the header) so it reads clean, not spammy.
+// DESIGN: a phone-sized "bite" first — one tidy card: a small Only Floofs wordmark
+// up top (the app icon, not the umbrella DUMHAWK mark), the pet photo with its name
+// + love overlaid, and the official App Store badge. The brand name appears exactly
+// ONCE (the header) so it reads clean, not spammy.
 //
 // Robustness: the pet is the whole point, so we retry the fetch and never cache the
 // no-pet fallback, so a shared pet can't freeze on the generic page.
 //
-// SEO lives in <head> only (canonical/og/twitter/JSON-LD, name+breed); the visible
-// card stays a bite.
+// SEO (2026-07-11 rewrite — WHY THIS CHANGED):
+// The card used to be a bite and NOTHING else: SEO lived in <head> only, and the
+// only unique text in the body was the pet's name and two counters. Google saw ~90
+// near-identical templated pages on a young domain and refused them: Search Console
+// showed 5 indexed vs 67 "Discovered - currently not indexed" (i.e. it found every
+// URL from the sitemap and CHOSE not to index). That is a content judgment, not a
+// plumbing bug — no amount of sitemap/IndexNow pinging fixes it.
+//
+// The API was already returning genuinely unique content we were throwing away:
+// caption (the owner's own words!), altText, city/region, breed, createdAt,
+// hallOfFame / lucky (Pet of the Day). So we now RENDER it: a real <h1>, the
+// caption, a short factual "about" line, and richer JSON-LD. The card above it is
+// untouched — the bite still reads as a bite; the substance sits under it.
+//
+// Thin-page gate: a pet with no caption, no breed, no bio and no location has
+// nothing unique to say, so it is noindex,follow (still crawlable, still passes
+// links, but it won't dilute the domain's quality signal). Better 40 real pages
+// than 90 thin ones.
 //
 // Deploy: this file lives at  functions/only-floofs/p/[id].js  in the GitHub repo
 // Cloudflare Pages builds dumhawk.com from. The copy in the Only-Paws repo
@@ -38,11 +54,49 @@ const PAW = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="#1FEFC
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
+// SECURITY: JSON.stringify does NOT escape "<" or "/", so any user-controlled string
+// inside JSON-LD (a pet's name, and now the owner's caption) can close the script tag
+// and inject markup — a stored XSS, since captions/names are user content. HTML-escaping
+// would corrupt the JSON, so escape the three dangerous chars as \uXXXX, which is valid
+// JSON, parses back to the identical string, and can never terminate a <script>.
+const ldJson = (o) => JSON.stringify(o)
+  .replace(/</g, "\\u003c")
+  .replace(/>/g, "\\u003e")
+  .replace(/&/g, "\\u0026");
+
+// PRIVACY TOGGLE: the API already publishes city/region on the public post and the
+// app shows it — but putting it on a Google-indexed page is a step further. Flip to
+// false and every location mention (visible text + JSON-LD contentLocation) is gone.
+const SHOW_LOCATION = true;
+
+// NOTE: format in UTC on purpose. A date-only value like luckyDate "2026-07-09"
+// parses as UTC midnight, so formatting it in a negative-offset local zone renders
+// the PREVIOUS day ("July 8") — which would have quietly mis-dated every Pet of the
+// Day. Workers run in UTC anyway; being explicit keeps it deterministic.
+const fmtDate = (iso) => {
+  try {
+    const d = new Date(iso);
+    return isNaN(d) ? "" : d.toLocaleDateString("en-US", {
+      year: "numeric", month: "long", day: "numeric", timeZone: "UTC",
+    });
+  } catch { return ""; }
+};
+
 function page(post, canonical, related = []) {
   const pet = post?.pet || {};
   const name = pet.name || "A floof";
   const breed = pet.breed || "";
   const species = pet.species || "";
+  // The genuinely unique, human-written / per-photo fields the old template ignored.
+  const caption = String(post?.caption || "").trim();
+  const bio = String(pet?.bio || "").trim();
+  const altText = String(post?.altText || "").trim();
+  const place = SHOW_LOCATION
+    ? [post?.city, post?.region].filter(Boolean).join(", ")
+    : "";
+  const posted = fmtDate(post?.createdAt);
+  const potdDate = post?.lucky && post?.luckyDate ? fmtDate(post.luckyDate) : "";
+  const hallOfFame = !!post?.hallOfFame;
   // og:image prefers the branded share card (photo + wordmark) for the unfurl;
   // the visible card uses the RAW photo.
   const ogImg = post?.cardURL || post?.imageURL || post?.thumbURL || `${SITE}/assets/floofs/loki-main.jpg`;
@@ -54,20 +108,57 @@ function page(post, canonical, related = []) {
   const descr = breed ? breed : (species || "pet");
   const pageTitle = post ? `${name} (${descr}) on Only Floofs` : "Only Floofs · Where pets become famous";
   const cardTitle = post ? `Meet ${name} on Only Floofs 🐾` : "Only Floofs · Where pets become famous";
+
+  // The old description was a template with only the name + counters swapped in, so
+  // ~90 pages shared one sentence. Lead with the owner's caption when there is one —
+  // that is the most distinctive text on the page — then the real facts.
+  const who = [breed, place && `from ${place}`].filter(Boolean).join(" ");
   const desc = post
-    ? `${name} has ${hearts} hearts and ${likes} likes on Only Floofs. Join the home of the internet's cutest pets, heart your favorites, and make your own pet famous.`
+    ? (caption
+        ? `“${caption}” — ${name}${who ? `, a ${who}` : ""}, on Only Floofs. ${hearts} hearts, ${likes} likes.`
+        : `${name} is a ${who || descr} on Only Floofs${posted ? `, shared ${posted}` : ""}. ${hearts} hearts, ${likes} likes.`)
     : "An endless feed of the internet's cutest pets. Heart your favorites, follow the floofs you love, and make your own pet famous.";
 
-  const robots = post ? "index,follow" : "noindex,follow";
+  // Thin-page gate: if a pet has nothing unique to say, keep it crawlable but out of
+  // the index rather than let it drag the domain's quality signal down.
+  const hasSubstance = !!(caption || breed || bio || place);
+  const robots = post ? (hasSubstance ? "index,follow" : "noindex,follow") : "noindex,follow";
 
+  const sp0 = String(species).toLowerCase();
   const ld = post ? {
     "@context": "https://schema.org",
     "@type": "ImageObject",
     "name": `${name}${breed ? ` the ${breed}` : ""}`,
     "description": desc,
+    // The owner's own words + the per-photo alt text: the fields that make this
+    // image distinguishable from the other ~90.
+    ...(caption ? { "caption": caption } : {}),
+    "representativeOfPage": true,
     "contentUrl": photo,
     "thumbnailUrl": post?.thumbURL || photo,
     "url": canonical,
+    ...(posted ? { "uploadDate": post.createdAt, "datePublished": post.createdAt } : {}),
+    ...(place ? {
+      "contentLocation": {
+        "@type": "Place",
+        "name": place,
+        "address": {
+          "@type": "PostalAddress",
+          ...(post?.city ? { "addressLocality": post.city } : {}),
+          ...(post?.region ? { "addressRegion": post.region } : {}),
+          ...(post?.country ? { "addressCountry": post.country } : {})
+        }
+      }
+    } : {}),
+    "about": {
+      "@type": "Thing",
+      "name": `${name}${breed ? `, a ${breed}` : ""}`,
+      ...(bio ? { "description": bio } : {})
+    },
+    "interactionStatistic": [
+      { "@type": "InteractionCounter", "interactionType": "https://schema.org/LikeAction", "userInteractionCount": post?.likes || 0 },
+      { "@type": "InteractionCounter", "interactionType": "https://schema.org/CommentAction", "userInteractionCount": post?.comments || 0 }
+    ],
     "creditText": "Only Floofs",
     "isPartOf": {
       "@type": "MobileApplication",
@@ -75,16 +166,66 @@ function page(post, canonical, related = []) {
       "applicationCategory": "PhotoApplication",
       "operatingSystem": "iOS",
       "installUrl": APPSTORE,
-      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "author": { "@type": "Person", "name": "Paul Fordham" },
+      "creator": { "@type": "Person", "name": "Paul Fordham" },
+      "publisher": {
+        "@type": "Organization",
+        "name": "dumhawk",
+        "url": SITE,
+        "founder": { "@type": "Person", "name": "Paul Fordham" }
+      }
     }
   } : null;
 
+  // Breadcrumbs: gives Google a real site hierarchy (Search Console has a
+  // Breadcrumbs enhancement report) and pushes crawl equity to the gallery hubs.
+  const hubPath = sp0 === "cat" ? "/only-floofs/cats" : sp0 === "dog" ? "/only-floofs/dogs" : "/not-only-paws";
+  const hubName = sp0 === "cat" ? "Cats" : sp0 === "dog" ? "Dogs" : "Other pets";
+  const crumbs = post ? {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      { "@type": "ListItem", "position": 1, "name": "Only Floofs", "item": `${SITE}/only-floofs/` },
+      { "@type": "ListItem", "position": 2, "name": hubName, "item": `${SITE}${hubPath}` },
+      { "@type": "ListItem", "position": 3, "name": name, "item": canonical }
+    ]
+  } : null;
+
   const store = `<a class="store" href="${esc(APPSTORE)}" aria-label="Download Only Floofs on the App Store"><img src="${BADGE}" alt="Download on the App Store"></a>`;
+
+  // ---- The substance Google was missing -------------------------------------
+  // A real <h1>, the owner's caption, and a plain-English factual line. All built
+  // from live per-pet data, so no two pages read the same. Written to sound like a
+  // person describing their pet, not an SEO block.
+  const facts = [];
+  if (breed) facts.push(`${name} is a ${breed}`);
+  else if (species) facts.push(`${name} is a ${species}`);
+  if (place) facts[0] = `${facts[0] || name} from ${place}`;
+  if (facts[0]) facts[0] += ".";
+  if (potdDate) facts.push(`Pet of the Day on ${potdDate}.`);
+  else if (hallOfFame) facts.push(`A Hall of Fame floof.`);
+  if (posted) facts.push(`Shared ${posted}.`);
+
+  const about = post ? `
+  <section class="about">
+    <h1>${esc(name)}${breed ? ` <span class="breed">the ${esc(breed)}</span>` : ""}</h1>
+    ${caption ? `<blockquote class="cap">${esc(caption)}</blockquote>` : ""}
+    ${facts.length ? `<p class="facts">${esc(facts.join(" "))}</p>` : ""}
+    ${bio ? `<p class="bio">${esc(bio)}</p>` : ""}
+    <p class="love">${hearts} hearts · ${likes} likes from the Only Floofs community.</p>
+  </section>` : "";
 
   // Pinterest "Save" — pet photos are catnip on Pinterest (a visual search engine
   // that drives huge cute-cats/dog-pics traffic). One tap pins the photo back to
   // this page; the data-pin-description on the <img> feeds the browser hover-save.
   const pinDesc = `${name}${breed ? ` the ${breed}` : ""} on Only Floofs`;
+  // The API's per-photo altText ("Dog, Husky, Floor, ...") actually describes THIS
+  // image; the old alt was the same name+breed string as every other page. Prefer
+  // the real thing, fall back to name+breed.
+  const photoAlt = altText
+    ? `${name}${breed ? ` the ${breed}` : ""} — ${altText}`
+    : `${name}${breed ? ` the ${breed}` : ""}`;
   const pin = post ? `<a class="pin" href="https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent(canonical)}&media=${encodeURIComponent(photo)}&description=${encodeURIComponent(pinDesc)}" target="_blank" rel="nofollow noopener">Save to Pinterest</a>` : "";
 
   // Related pets of the same species + a link to the matching gallery, so the
@@ -102,7 +243,7 @@ function page(post, canonical, related = []) {
   <div class="card">
     <div class="brand"><img src="${ICON}" alt="" width="30" height="30"><span>Only Floofs</span></div>
     <div class="frame">
-      <img class="photo" src="${esc(photo)}" alt="${esc(name)}${breed ? esc(` the ${breed}`) : ""}" width="360" height="360" data-pin-description="${esc(pinDesc)}">
+      <img class="photo" src="${esc(photo)}" alt="${esc(photoAlt)}" width="360" height="360" data-pin-description="${esc(pinDesc)}">
       <div class="scrim"></div>
       <div class="meta">
         <div class="name">${esc(name)}</div>
@@ -126,6 +267,7 @@ function page(post, canonical, related = []) {
 <link rel="apple-touch-icon" href="${ICON}">
 <title>${esc(pageTitle)}</title>
 <meta name="description" content="${esc(desc)}">
+<meta name="author" content="Paul Fordham">
 <meta name="robots" content="${robots}">
 <link rel="canonical" href="${esc(canonical)}">
 <meta name="apple-itunes-app" content="app-id=${APP_ID}, app-clip-bundle-id=com.onlyfloofs.app.Clip">
@@ -140,7 +282,8 @@ function page(post, canonical, related = []) {
 <meta name="twitter:title" content="${esc(cardTitle)}">
 <meta name="twitter:description" content="${esc(desc)}">
 <meta name="twitter:image" content="${esc(ogImg)}">
-${ld ? `<script type="application/ld+json">${JSON.stringify(ld)}</script>` : ""}
+${ld ? `<script type="application/ld+json">${ldJson(ld)}</script>` : ""}
+${crumbs ? `<script type="application/ld+json">${ldJson(crumbs)}</script>` : ""}
 <style>
 *{box-sizing:border-box}html,body{margin:0;height:100%}
 body{font:16px/1.55 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#f2f2f7;
@@ -175,7 +318,17 @@ a{color:#b9a3ff;text-decoration:none}
 .more-grid a{display:block;border-radius:12px;overflow:hidden;aspect-ratio:1/1;background:#15151b}
 .more-grid img{width:100%;height:100%;object-fit:cover;display:block}
 .more-links{margin:12px 0 0;font-size:13px}
-</style></head><body><main class="col">${card}${more}</main></body></html>`;
+/* The substance block: quiet by design so the card still reads as the "bite",
+   but it is real, crawlable, per-pet text rather than a template. */
+.about{width:100%;text-align:left;padding:0 2px}
+.about h1{font-size:19px;font-weight:800;letter-spacing:-.2px;color:#fff;margin:0 0 8px}
+.about h1 .breed{font-weight:600;color:#9a93ad}
+.cap{margin:0 0 10px;padding:0 0 0 11px;border-left:2px solid rgba(255,77,134,.55);
+ color:#e6e2f0;font-size:15px;font-style:italic}
+.facts{margin:0 0 6px;color:#b9b3c7;font-size:13.5px}
+.bio{margin:0 0 6px;color:#b9b3c7;font-size:13.5px}
+.love{margin:0;color:#9a93ad;font-size:12.5px}
+</style></head><body><main class="col">${card}${about}${more}</main></body></html>`;
 }
 
 async function fetchPost(id) {
