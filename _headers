@@ -1,3 +1,9 @@
 # Advertise machine-readable resources to AI agents (RFC 8288 Link headers).
 /*
   Link: </llms.txt>; rel="describedby"; type="text/markdown"
+# Apple requires the app-site-association file served as application/json.
+# Cloudflare serves this extensionless file as application/octet-stream, which
+# passes universal links but fails App Clip domain validation (share links
+# open the App Clip then close).
+/.well-known/apple-app-site-association
+  Content-Type: application/json

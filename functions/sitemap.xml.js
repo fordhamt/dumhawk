@@ -23,9 +23,11 @@ const STATIC = [
   { loc: `${SITE}/only-floofs/cats`, priority: "0.9", changefreq: "daily" },
   { loc: `${SITE}/only-floofs/dogs`, priority: "0.9", changefreq: "daily" },
   { loc: `${SITE}/not-only-paws`, priority: "0.8", changefreq: "weekly" },
-  { loc: `${SITE}/only-floofs/support.html`, priority: "0.3", changefreq: "monthly" },
-  { loc: `${SITE}/only-floofs/privacy.html`, priority: "0.2", changefreq: "yearly" },
-  { loc: `${SITE}/only-floofs/terms.html`, priority: "0.2", changefreq: "yearly" },
+  // Extensionless canonical URLs: Cloudflare 301-redirects the .html versions to
+  // these, so listing .html made Google report "Page with redirect."
+  { loc: `${SITE}/only-floofs/support`, priority: "0.3", changefreq: "monthly" },
+  { loc: `${SITE}/only-floofs/privacy`, priority: "0.2", changefreq: "yearly" },
+  { loc: `${SITE}/only-floofs/terms`, priority: "0.2", changefreq: "yearly" },
 ];
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
@@ -55,12 +57,11 @@ export const onRequestGet = async () => {
   const posts = await fetchPosts();
   const urls = [];
 
+  for (const s of STATIC) {
+    urls.push(`<url><loc>${esc(s.loc)}</loc><changefreq>${s.changefreq}</changefreq><priority>${s.priority}</priority></url>`);
+  }
   const breedCount = new Map();
   const speciesCount = new Map();
-  const breedMod = new Map();
-  const speciesMod = new Map();
-  const newer = (a, b) => (!a ? b : (!b ? a : (a > b ? a : b)));
-  let catMod = null, dogMod = null, latestMod = null;
   for (const p of posts) {
     const loc = `${SITE}/only-floofs/p/${encodeURIComponent(p.id)}`;
     const lastmod = p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10) : null;
@@ -74,38 +75,22 @@ export const onRequestGet = async () => {
     urls.push(
       `<url><loc>${esc(loc)}</loc>${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.6</priority>${imgXml}</url>`
     );
-    const sp = String(p.species || p.pet?.species || "").toLowerCase();
-    if (sp === "cat") catMod = newer(catMod, lastmod);
-    else if (sp === "dog") dogMod = newer(dogMod, lastmod);
-    latestMod = newer(latestMod, lastmod);
     const breed = p.pet?.breed || p.breed;
-    if (breed) { const s = slugify(breed); if (s) { breedCount.set(s, (breedCount.get(s) || 0) + 1); breedMod.set(s, newer(breedMod.get(s), lastmod)); } }
-    if (sp && sp !== "cat" && sp !== "dog" && sp !== "other") { const ss = slugify(sp); if (ss) { speciesCount.set(ss, (speciesCount.get(ss) || 0) + 1); speciesMod.set(ss, newer(speciesMod.get(ss), lastmod)); } }
-  }
-
-  // Static hub pages, stamped with the freshest photo date where we can derive it.
-  const staticMod = {
-    [`${SITE}/only-floofs/cats`]: catMod,
-    [`${SITE}/only-floofs/dogs`]: dogMod,
-    [`${SITE}/not-only-paws`]: latestMod,
-  };
-  for (const s of STATIC) {
-    const m = staticMod[s.loc] || null;
-    urls.push(`<url><loc>${esc(s.loc)}</loc>${m ? `<lastmod>${m}</lastmod>` : ""}<changefreq>${s.changefreq}</changefreq><priority>${s.priority}</priority></url>`);
+    if (breed) { const s = slugify(breed); if (s) breedCount.set(s, (breedCount.get(s) || 0) + 1); }
+    const sp = String(p.species || p.pet?.species || "").toLowerCase();
+    if (sp && sp !== "cat" && sp !== "dog" && sp !== "other") { const ss = slugify(sp); if (ss) speciesCount.set(ss, (speciesCount.get(ss) || 0) + 1); }
   }
 
   // Breed gallery pages, but only breeds with enough photos to be a real page
   // (the breed function noindexes thin ones anyway; keep them out of the sitemap).
   for (const [slug, n] of breedCount) {
     if (n < 3) continue;
-    const m = breedMod.get(slug);
-    urls.push(`<url><loc>${esc(`${SITE}/only-floofs/breed/${slug}`)}</loc>${m ? `<lastmod>${m}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.7</priority></url>`);
+    urls.push(`<url><loc>${esc(`${SITE}/only-floofs/breed/${slug}`)}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`);
   }
   // Per-species "animals" pages (reptiles, birds, …) with enough photos.
   for (const [slug, n] of speciesCount) {
     if (n < 3) continue;
-    const m = speciesMod.get(slug);
-    urls.push(`<url><loc>${esc(`${SITE}/only-floofs/animals/${slug}`)}</loc>${m ? `<lastmod>${m}</lastmod>` : ""}<changefreq>weekly</changefreq><priority>0.7</priority></url>`);
+    urls.push(`<url><loc>${esc(`${SITE}/only-floofs/animals/${slug}`)}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`);
   }
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
