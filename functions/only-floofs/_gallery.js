@@ -28,6 +28,17 @@ const CAP = 300;       // max pets fetched per species (bounds runtime)
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+// SECURITY: JSON.stringify does NOT escape "<" or "/", so user-controlled strings in
+// the JSON-LD (pet NAMES and BREEDS both land in the ItemList) could close the script
+// tag and inject markup — a stored XSS. HTML-escaping would corrupt the JSON, so escape
+// the dangerous chars as \uXXXX: valid JSON, parses back identical, can never end a
+// <script>. (Same fix as the per-pet page.)
+const ldJson = (o) => JSON.stringify(o)
+  .replace(/</g, "\\u003c")
+  .replace(/>/g, "\\u003e")
+  .replace(/&/g, "\\u0026");
+
 const slugify = (s) => String(s ?? "").toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 const title1 = (s) => String(s ?? "").replace(/\b\w/g, (m) => m.toUpperCase());
 const plural = (s) => /s$/i.test(s) ? s : `${s}s`;
@@ -80,6 +91,54 @@ const COPY = {
     faqs: faqPaws,
   },
 };
+
+// --- Real breed information -------------------------------------------------
+// WHY: a breed page whose only text is "Cute {Breed} pictures" is the same thin,
+// templated content Google already refused on the per-pet pages (Search Console:
+// "Discovered - currently not indexed"). Someone searching "goldendoodle pictures"
+// wants photos AND to know what a goldendoodle actually is. This gives each breed
+// page genuinely unique, accurate prose that no other page on the site has, which is
+// what makes it worth indexing — and worth reading.
+//
+// Facts are deliberately conservative and true of the breed in general; for CROSSES
+// we say "usually/often", because mixes vary and overclaiming would be wrong.
+// Unknown breeds simply fall back to the generic copy - never invent facts.
+const BREED_FACTS = {
+  "siberian-husky": { about: "Bred by the Chukchi people of northeastern Siberia to pull light loads over long distances, the Siberian Husky is built for endurance rather than raw power. The thick double coat sheds heavily twice a year, the eyes can be blue, brown, or one of each, and they tend to howl and 'talk' far more than they bark. They are affectionate and famously poor guard dogs, and they are determined escape artists who need real exercise.", traits: ["High energy", "Double coat", "Very vocal", "Escape artist"] },
+  "husky-mix": { about: "Husky crosses usually keep the parts people notice first: the thick double coat, the talkativeness, and the energy. Coat and eye colour vary a lot depending on the other half, but most husky mixes want considerably more exercise and mental work than the average dog, and many inherit the breed's talent for getting out of a fenced yard.", traits: ["High energy", "Often vocal", "Sheds a lot"] },
+  "alaskan-malamute": { about: "The Malamute is the heavier freighting cousin of the Husky, bred to haul serious weight over distance rather than run fast. Big, powerfully built, dense-coated and dignified, they are affectionate with their people and, like most northern breeds, shed spectacularly.", traits: ["Large", "Powerful", "Heavy shedder"] },
+  "goldendoodle": { about: "A Golden Retriever crossed with a Poodle. The coat ranges from wavy to tightly curled and sheds less than a Retriever's, though 'low-shedding' is a tendency and not a guarantee, and that coat needs regular grooming to avoid matting. Most inherit the Golden's sociability and the Poodle's brains, which makes them easy to train and not at all keen on being left alone.", traits: ["Friendly", "Low-shedding", "Needs grooming", "Smart"] },
+  "labradoodle": { about: "A Labrador Retriever crossed with a Poodle, originally bred in Australia as a guide dog for people with allergies. Coats vary from straight to curly, energy levels are typically high, and like most poodle crosses they need regular grooming.", traits: ["High energy", "Curly coat", "People-focused"] },
+  "cavapoo": { about: "A Cavalier King Charles Spaniel crossed with a Poodle. Small, soft-coated and famously people-oriented, cavapoos tend to be gentle and adaptable, which is much of their appeal as companion dogs.", traits: ["Small", "Gentle", "Very affectionate"] },
+  "peekapoo": { about: "A Pekingese crossed with a Poodle, one of the older 'designer' crosses. Small, affectionate lapdogs with a soft coat that sheds lightly but needs regular brushing. Like many toy breeds they bond hard to one or two people.", traits: ["Toy size", "Affectionate", "Light shedder"] },
+  "german-shepherd": { about: "Developed in Germany in the late 1800s as a herding dog and quickly adopted for police and military work, the German Shepherd is one of the most capable working breeds there is: intelligent, trainable, and deeply loyal. They are happiest with a job, they shed year-round, and an under-exercised, under-stimulated Shepherd will invent its own work.", traits: ["Very smart", "Loyal", "Needs a job", "Year-round shedder"] },
+  "german-shepherd-mix": { about: "German Shepherd crosses usually keep the intelligence, the loyalty and the drive to work. Size, coat and colour vary with the other half, but most want training, exercise and something to think about, and most shed more than their owners expected.", traits: ["Smart", "Loyal", "Active"] },
+  "australian-cattle-dog": { about: "Also called the Blue Heeler or Red Heeler, bred to drive cattle across long distances in the Australian heat by nipping at their heels. The result is a compact, tireless, extremely intelligent dog with a mottled blue or red coat, a strong herding instinct, and almost no off switch. They are outstanding at dog sports and miserable when bored.", traits: ["Tireless", "Very smart", "Herding instinct", "Needs a job"] },
+  "blue-heeler": { about: "Blue Heeler is the common name for the Australian Cattle Dog, bred to move cattle by nipping at their heels. Compact, mottled blue-grey, endlessly energetic and very intelligent, with a strong herding instinct that often shows up as gently herding the family.", traits: ["Tireless", "Very smart", "Herding instinct"] },
+  "aussie-blue-heeler": { about: "An Australian Shepherd crossed with a Blue Heeler (Australian Cattle Dog) — two herding breeds, so the result is usually a very intelligent, very high-drive dog. Expect strong herding instincts, real stamina, and a dog that genuinely needs a job, training or a sport rather than just a walk.", traits: ["Extremely high energy", "Very smart", "Strong herding drive"] },
+  "australian-shepherd": { about: "Despite the name, the Aussie was developed largely on ranches in the western United States. It's a herding dog through and through: agile, bright, intensely bonded to its people, often merle-coated, and much happier with work to do than with a quiet afternoon.", traits: ["High energy", "Very smart", "Herding instinct"] },
+  "border-collie": { about: "Widely considered the most intelligent dog breed, bred on the Anglo-Scottish border to gather sheep using an intense stare known as 'the eye'. Border Collies are athletic, obsessive, and extraordinarily trainable, and they are a poor fit for a household that can't give them mental work every single day.", traits: ["Most intelligent", "Obsessive", "Needs constant work"] },
+  "cocker-spaniel": { about: "A gundog bred to flush and retrieve woodcock, which is where the name comes from. Cockers are gentle, eager to please and merry by reputation, with a silky coat and long feathered ears — those ears trap moisture and need regular cleaning to stay healthy.", traits: ["Gentle", "Eager to please", "Feathered ears", "Needs grooming"] },
+  "doberman-pinscher": { about: "Developed in 1890s Germany by a tax collector, Louis Dobermann, who wanted a protective dog to accompany him on his rounds. The modern Doberman is sleek, athletic and strikingly fast, highly intelligent, and far more affectionate with its own family than the reputation suggests. They are sensitive dogs who do badly when isolated.", traits: ["Athletic", "Very smart", "Loyal", "Protective"] },
+  "labrador-retriever": { about: "Originally from Newfoundland, where it worked alongside fishermen hauling nets and retrieving fish, the Labrador is now the classic family dog for good reason: friendly, biddable, and endlessly food-motivated. The short double coat sheds more than people expect, and the appetite means weight gain is a genuine health issue for the breed.", traits: ["Friendly", "Food-motivated", "Sheds", "Great swimmer"] },
+  "golden-retriever": { about: "Bred in the Scottish Highlands in the 1800s to retrieve waterfowl, the Golden is soft-mouthed, patient and famously good-natured. The long golden coat sheds heavily and needs regular brushing, and they stay playful and puppyish well into adulthood.", traits: ["Gentle", "Patient", "Heavy shedder", "Loves water"] },
+  "corgi": { about: "Both Corgi breeds — Pembroke and Cardigan — are short-legged herding dogs from Wales, built low to the ground so they could nip at cattle heels and duck the kick. They are bold, chatty and much sturdier than their size suggests, and that long back means jumping off furniture is worth discouraging.", traits: ["Short-legged", "Bold", "Herding instinct", "Big bark"] },
+  "shiba-inu": { about: "An ancient Japanese breed originally used to hunt small game in mountainous terrain. Shibas are famously independent, catlike in their fastidiousness, and not especially interested in pleasing you — which is precisely what their owners love. The 'Shiba scream' is real.", traits: ["Independent", "Catlike", "Strong-willed"] },
+  "pomeranian": { about: "A toy-sized descendant of much larger Arctic spitz sledding dogs, bred down in size and popularised by Queen Victoria. Tiny, profusely coated and convinced they are enormous, Poms are alert, bold and vocal, and that double coat needs real brushing.", traits: ["Toy size", "Big personality", "Fluffy", "Alert barker"] },
+  "dachshund": { about: "German for 'badger dog', which is the job: the long body and short legs were built to follow a badger down its tunnel. That makes them tenacious, brave and stubborn to a fault. The long spine is genuinely fragile, so stairs and furniture jumps are worth managing.", traits: ["Tenacious", "Stubborn", "Long back", "Loud for its size"] },
+  "chihuahua": { about: "The smallest dog breed, named for the Mexican state where it was first documented. Chihuahuas are alert, deeply attached to one person, and entirely unaware of their size. They feel the cold and often genuinely appreciate a sweater.", traits: ["Tiniest breed", "Bold", "One-person dog", "Feels the cold"] },
+  "pit-bull": { about: "'Pit bull' is not one breed but a loose label covering the American Pit Bull Terrier, Staffordshire Terriers and similar dogs, which is why the look varies so much. They are typically strong, athletic, and notably people-oriented and affectionate with their families.", traits: ["Muscular", "Affectionate", "People-oriented"] },
+  "poodle": { about: "Originally a German water retriever, not a French fashion accessory — the elaborate show clip started as a practical way to keep the joints warm while swimming. Poodles are among the most intelligent breeds, and the curly coat sheds very little but must be clipped and brushed regularly.", traits: ["Very smart", "Low-shedding", "Needs clipping", "Good swimmer"] },
+  "beagle": { about: "A scent hound bred to hunt rabbits in packs, which explains most beagle behaviour: the nose leads, the recall is optional, and the famous bay carries for miles. They are sociable, sturdy and cheerful, and they will follow a smell straight out of an open gate.", traits: ["Nose-driven", "Sociable", "Loud bay", "Follows scent"] },
+  "maine-coon": { about: "One of the largest domesticated cat breeds and a natural breed native to the northeastern United States, built for hard winters: a shaggy water-resistant coat, tufted ears, big snowshoe paws and a magnificent long tail. Despite the size they are gentle, sociable and often described as dog-like.", traits: ["Very large", "Gentle giant", "Shaggy coat", "Sociable"] },
+  "siamese": { about: "An old breed from Siam (now Thailand), instantly recognisable by the blue eyes and pointed coat — the dark points appear on the cooler parts of the body, which is why kittens are born pale. Siamese are famously talkative, intelligent and demanding of attention.", traits: ["Extremely vocal", "Smart", "Pointed coat", "Attention-seeking"] },
+  "ragdoll": { about: "Named for the tendency to go limp and relaxed when picked up. Ragdolls are large, blue-eyed, semi-longhaired cats bred specifically for a docile, placid temperament, and they tend to follow their people from room to room.", traits: ["Goes limp when held", "Docile", "Large", "Follows you around"] },
+  "bengal": { about: "Created by crossing domestic cats with the Asian leopard cat, which is where the spotted or marbled 'wild' coat comes from. Bengals are exceptionally athletic and busy, often fascinated by running water, and they need far more play and climbing than the average cat.", traits: ["Wild-looking coat", "Very athletic", "Loves water", "Needs stimulation"] },
+  "persian": { about: "One of the oldest recognised cat breeds, known for the long flowing coat, flat face and calm, quiet temperament. That coat mats without daily brushing, and the flattened facial structure can cause breathing and tear-drainage problems worth watching for.", traits: ["Long coat", "Calm", "Daily brushing", "Flat face"] },
+  "tabby": { about: "Tabby isn't a breed at all — it's a coat pattern, and it's the most common one in domestic cats. The M-shaped marking on the forehead is its signature, and it comes in classic (swirled), mackerel (striped), spotted and ticked variations across many breeds.", traits: ["A pattern, not a breed", "M on the forehead", "Very common"] },
+  "domestic-shorthair": { about: "Not a breed but the term for a mixed-ancestry cat with a short coat — the feline equivalent of a mutt, and the majority of pet cats. The genetic variety tends to make them robust, and personality and colour vary enormously.", traits: ["Mixed ancestry", "Most common cat", "Hardy"] },
+};
+const breedFacts = (slug, display) => BREED_FACTS[slug] || null;
 
 function normalize(p) {
   const pet = p.pet || {};
@@ -179,7 +238,7 @@ function jsonld(c, canonical, pets) {
   }));
   const out = [
     {
-      "@context": "https://schema.org", "@type": "CollectionPage", "name": c.h1, "description": c.desc, "url": canonical, "publisher": { "@type": "Organization", "name": "Only Floofs", "url": `${SITE}/only-floofs/`, "logo": `${SITE}/apple-touch-icon.png` },
+      "@context": "https://schema.org", "@type": "CollectionPage", "name": c.h1, "description": c.desc, "url": canonical,
       "isPartOf": { "@type": "MobileApplication", "name": "Only Floofs", "applicationCategory": "PhotoApplication", "operatingSystem": "iOS", "installUrl": APPSTORE, "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }, "author": { "@type": "Person", "name": "Paul Fordham" }, "creator": { "@type": "Person", "name": "Paul Fordham" }, "publisher": { "@type": "Organization", "name": "dumhawk", "url": SITE, "founder": { "@type": "Person", "name": "Paul Fordham" } } },
       "mainEntity": { "@type": "ItemList", "numberOfItems": items.length, "itemListElement": items },
     },
@@ -207,8 +266,8 @@ function buildPage(c, allPets, opts = {}) {
   const robots = opts.robots || "index,follow";
 
   const tiles = pets.map((p) => {
-    const desc = [p.breed, p.species].filter(Boolean).join(" ") || "pet";
-    const alt = `Cute ${desc} named ${p.name}`;
+    const kind = p.breed ? `${p.breed} ` : (p.species ? `${p.species} ` : "");
+    const alt = `Cute ${kind}named ${p.name}`;
     return `<a class="tile" href="/only-floofs/p/${esc(encodeURIComponent(p.id))}" title="${esc(p.name)}${p.breed ? esc(` the ${p.breed}`) : ""}">
       <img loading="lazy" src="${esc(p.img)}" alt="${esc(alt)}" width="300" height="300" data-pin-description="${esc(alt)} on Only Floofs">
       <span class="cap"><b>${esc(p.name)}</b>${p.breed ? `<i>${esc(p.breed)}</i>` : ""}</span></a>`;
@@ -226,6 +285,15 @@ function buildPage(c, allPets, opts = {}) {
 
   const relNav = c.related.map((r) => `<a href="${r.path}">${esc(r.label)}</a>`).join(" · ");
   const faq = (c.faqs && c.faqs.length) ? `<section class="faq"><h2>FAQ</h2>${c.faqs.map((f) => `<div class="qa"><h3>${esc(f.q)}</h3><p>${esc(f.a)}</p></div>`).join("")}</section>` : "";
+
+  // Real breed information: the one block of text on this page that exists nowhere
+  // else on the site. Rendered ABOVE the FAQ because it's the thing a searcher who
+  // typed "<breed> pictures" actually wants alongside the photos.
+  const about = c.facts ? `<section class="breedinfo">
+    <h2>About the ${esc(c.aboutLabel || c.oneLabel)}</h2>
+    <p>${esc(c.facts.about)}</p>
+    ${c.facts.traits && c.facts.traits.length ? `<div class="traits">${c.facts.traits.map((t) => `<span>${esc(t)}</span>`).join("")}</div>` : ""}
+  </section>` : "";
   const ld = jsonld(c, canonical, pets);
   const heading = page > 1 ? `${c.h1} — page ${page}` : c.h1;
 
@@ -234,7 +302,8 @@ function buildPage(c, allPets, opts = {}) {
 <meta name="color-scheme" content="dark">
 <link rel="icon" href="${SITE}/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="${ICON}">
 <title>${esc(page > 1 ? `${c.title} (page ${page})` : c.title)}</title>
-<meta name="description" content="${esc(c.desc)}"><meta name="author" content="Paul Fordham">
+<meta name="description" content="${esc(c.desc)}">
+<meta name="author" content="Paul Fordham">
 <meta name="keywords" content="${esc(c.kw)}">
 <meta name="robots" content="${robots}">
 <link rel="canonical" href="${esc(canonical)}">
@@ -242,7 +311,7 @@ ${hasPrev ? `<link rel="prev" href="${esc(SITE + pageUrl(page - 1))}">` : ""}${h
 <meta name="apple-itunes-app" content="app-id=${APP_ID}, app-clip-bundle-id=com.onlyfloofs.app.Clip">
 <meta property="og:site_name" content="Only Floofs"><meta property="og:title" content="${esc(c.h1)} on Only Floofs"><meta property="og:description" content="${esc(c.desc)}"><meta property="og:type" content="website"><meta property="og:url" content="${esc(canonical)}">${pets[0] ? `<meta property="og:image" content="${esc(pets[0].img)}">` : ""}
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(c.h1)} on Only Floofs"><meta name="twitter:description" content="${esc(c.desc)}">${pets[0] ? `<meta name="twitter:image" content="${esc(pets[0].img)}">` : ""}
-<script type="application/ld+json">${JSON.stringify(ld)}</script>
+<script type="application/ld+json">${ldJson(ld)}</script>
 <style>
 *{box-sizing:border-box}body{margin:0;font:16px/1.6 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,Helvetica,Arial,sans-serif;color:#f2f2f7;background:radial-gradient(1100px 600px at 50% -10%,rgba(219,62,177,.20),transparent 60%),radial-gradient(900px 520px at 50% 2%,rgba(65,182,230,.12),transparent 55%),#0b0b0f;min-height:100vh}
 .wrap{max-width:1040px;margin:0 auto;padding:26px 20px 60px}
@@ -259,6 +328,11 @@ h1{font-size:34px;line-height:1.15;letter-spacing:-.02em;margin:6px 0 10px}.lead
 .cap{position:absolute;left:0;right:0;bottom:0;padding:20px 10px 8px;background:linear-gradient(transparent,rgba(0,0,0,.8));display:flex;flex-direction:column;gap:1px}.cap b{font-size:13px;color:#fff}.cap i{font-size:11px;color:#cfc9da;font-style:normal}
 .pager{display:flex;justify-content:space-between;gap:12px;margin:6px 0 8px;font-size:14px}
 .blurb{color:#c9c6d4;max-width:760px;margin:18px 0}.empty{color:#c9c6d4}
+.breedinfo{max-width:760px;margin:26px 0 0;border-top:1px solid rgba(255,255,255,.07);padding-top:18px}
+.breedinfo h2{font-size:20px;margin:0 0 10px}
+.breedinfo p{margin:0;color:#c9c6d4}
+.traits{display:flex;flex-wrap:wrap;gap:7px;margin-top:12px}
+.traits span{background:#15151b;border:1px solid rgba(255,255,255,.08);color:#cfc9da;padding:4px 10px;border-radius:999px;font-size:12.5px}
 .faq{max-width:760px;margin:26px 0 0}.faq h2{font-size:20px;margin:0 0 10px}.qa{border-top:1px solid rgba(255,255,255,.07);padding:14px 0}.qa h3{font-size:15px;margin:0 0 4px;color:#fff}.qa p{margin:0;color:#c9c6d4;font-size:14px}
 footer{margin-top:30px;color:#7d7790;font-size:13px;border-top:1px solid rgba(255,255,255,.07);padding-top:16px}
 </style></head><body><div class="wrap">
@@ -270,6 +344,7 @@ ${chips}
 ${grid}
 ${pager}
 <p class="blurb">${esc(c.blurb)}</p>
+${about}
 ${faq}
 <footer>${esc(c.h1)} on <a href="/only-floofs/">Only Floofs</a>, the home of the internet's cutest pets. Also see ${relNav}. New photos every day. <a href="${esc(APPSTORE)}">Get the free iOS app</a>.</footer>
 </div></body></html>`, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=600, s-maxage=3600" } });
@@ -306,15 +381,27 @@ export async function renderBreed(slugParam, request) {
   const { pets, display, species } = await fetchBreedAll(slug);
   if (pets.length < 1) return new Response("Not found", { status: 404 });
   const sp = (species === "cat") ? "cat" : "dog";
+  const facts = breedFacts(slug, display);
+  // The first sentence of the real breed write-up makes the meta description unique
+  // per breed instead of the same "Cute {X} pictures" template on every page.
+  const firstSentence = facts ? (facts.about.match(/^.*?[.!?](?=\s|$)/) || [facts.about])[0].trim() : "";
   const c = {
     path: `/only-floofs/breed/${slug}`, emoji: sp === "cat" ? "🐱" : "🐶", oneLabel: display.toLowerCase(),
+    aboutLabel: display, facts,
     title: `Cute ${display} Pictures — ${display} photos on Only Floofs`, h1: `Cute ${display} pictures`,
-    lead: `Real ${display}s, shared by their owners on Only Floofs and updated as new ones are posted. Every photo passed moderation, so it's all genuine ${display} cuteness, with thousands more pets in the free app.`,
-    desc: `Cute ${display} pictures on Only Floofs. Real ${display}s shared by their owners, updated regularly. Heart your favorites and make your own ${display} famous.`,
+    lead: facts
+      ? `${firstSentence} Below are real ${display}s shared by their owners on Only Floofs, updated as new ones are posted.`
+      : `Real ${display}s, shared by their owners on Only Floofs and updated as new ones are posted. Every photo passed moderation, so it's all genuine ${display} cuteness, with thousands more pets in the free app.`,
+    desc: facts
+      ? `${firstSentence} See real ${display} pictures shared by their owners on Only Floofs.`
+      : `Cute ${display} pictures on Only Floofs. Real ${display}s shared by their owners, updated regularly. Heart your favorites and make your own ${display} famous.`,
     kw: `cute ${display.toLowerCase()}, ${display.toLowerCase()} pictures, ${display.toLowerCase()} photos, cute ${sp}s, ${sp} pics, only floofs`,
     blurb: `Every ${display} here belongs to a real owner who shares it on Only Floofs. Tap any one to meet it, or post your own ${display} and watch the hearts roll in.`,
     related: [{ path: `/only-floofs/${sp}s`, label: `more cute ${sp}s` }, { path: "/not-only-paws", label: "reptiles, birds & more" }],
     faqs: [
+      // Lead the FAQ with the real question people actually search ("what is a X like")
+      // and answer it with real information, not a pitch.
+      ...(facts ? [{ q: `What is a ${display} like?`, a: facts.about }] : []),
       { q: `Where can I find cute ${display} pictures?`, a: `Right here. This page collects real ${display}s shared by their owners on Only Floofs, and there are thousands more pets in the free app.` },
       { q: `Are these real ${display}s?`, a: `Yes. Every photo is posted by the pet's owner and passes automatic moderation before it appears.` },
       { q: `Can I add my ${display}?`, a: `Yes, and it's free. Post your ${display} in the Only Floofs app and it can collect hearts and climb the leaderboards.` },
