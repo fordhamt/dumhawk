@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.onlyfloofs.app",
+      "sha256_cert_fingerprints": [
+        "31:2C:55:BC:19:CF:2E:7E:BD:18:E4:76:B9:66:1E:AF:FC:2F:D9:F4:A4:A1:BA:85:1A:04:E7:4B:50:DB:AC:51"
+      ]
+    }
+  }
+]
