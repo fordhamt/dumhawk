@@ -231,6 +231,9 @@ function page(post, canonical, related = []) {
     : `${name}${breed ? ` the ${breed}` : ""}`;
   const pin = post ? `<a class="pin" href="https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent(canonical)}&media=${encodeURIComponent(photo)}&description=${encodeURIComponent(pinDesc)}" target="_blank" rel="nofollow noopener">Save to Pinterest</a>` : "";
 
+  // The pet community on Reddit — every share page doubles as a subreddit funnel.
+  const reddit = `<p class="sub"><a href="https://www.reddit.com/r/onlyfloofs/" rel="noopener">Join the community — r/onlyfloofs</a></p>`;
+
   // Related pets of the same species + a link to the matching gallery, so the
   // page links onward instead of dead-ending.
   const sp = String(species).toLowerCase();
@@ -256,11 +259,13 @@ function page(post, canonical, related = []) {
     ${store}
     <p class="sub">Tap to meet ${esc(name)} and thousands more pets.</p>
     ${pin}
+    ${reddit}
   </div>` : `
   <div class="card">
     <div class="brand"><img src="${ICON}" alt="" width="30" height="30"><span>Only Floofs</span></div>
     <h1 class="headline">Meet the cutest pets on the internet.</h1>
     ${store}
+    ${reddit}
   </div>`;
 
   return `<!DOCTYPE html><html lang="en"><head>

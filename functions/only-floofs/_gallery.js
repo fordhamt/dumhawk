@@ -346,7 +346,7 @@ ${pager}
 <p class="blurb">${esc(c.blurb)}</p>
 ${about}
 ${faq}
-<footer>${esc(c.h1)} on <a href="/only-floofs/">Only Floofs</a>, the home of the internet's cutest pets. Also see ${relNav}. New photos every day. <a href="${esc(APPSTORE)}">Get the free iOS app</a>.</footer>
+<footer>${esc(c.h1)} on <a href="/only-floofs/">Only Floofs</a>, the home of the internet's cutest pets. Also see ${relNav}. New photos every day. Join the community at <a href="https://www.reddit.com/r/onlyfloofs/" rel="noopener">r/onlyfloofs</a>. <a href="${esc(APPSTORE)}">Get the free iOS app</a>.</footer>
 </div></body></html>`, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=600, s-maxage=3600" } });
 }
 
