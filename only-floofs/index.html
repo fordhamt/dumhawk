@@ -168,7 +168,7 @@ footer a{color:#a9a9b8}
 <p class="browse">It's not only paws &rarr; browse <a href="/only-floofs/cats">cute cats</a>, <a href="/only-floofs/dogs">cute dogs</a>, and <a href="/not-only-paws">every other animal</a>.</p>
 </header>
 
-<div class="shots-wrap"><button class="shots-nav prev" type="button" aria-label="Scroll to previous screenshots">‹</button>
+<div class="shots-wrap"><button class="shots-nav prev" type="button" aria-label="Scroll to previous screenshots" onclick="this.parentNode.querySelector('.shots').scrollBy({left:-520,behavior:'smooth'})">‹</button>
 <div class="shots">
 <img src="/assets/floofs/1-scroll.webp" alt="Only Floofs scrolling feed of cute pets" loading="lazy">
 <img src="/assets/floofs/2-endless.webp" alt="Only Floofs endless pet feed" loading="lazy">
@@ -178,7 +178,7 @@ footer a{color:#a9a9b8}
 <img src="/assets/floofs/6-leaderboard.webp" alt="Only Floofs leaderboard" loading="lazy">
 <img src="/assets/floofs/7-floof-madness.webp" alt="Only Floofs Floof Madness bracket" loading="lazy">
 </div>
-<button class="shots-nav next" type="button" aria-label="Scroll to next screenshots">›</button></div>
+<button class="shots-nav next" type="button" aria-label="Scroll to next screenshots" onclick="this.parentNode.querySelector('.shots').scrollBy({left:520,behavior:'smooth'})">›</button></div>
 
 <section class="sec">
 <div class="kicker">What is Only Floofs?</div>
@@ -238,6 +238,5 @@ lb.addEventListener("click", shut);
 document.addEventListener("keydown", function(e){ if(e.key==="Escape") shut(); });
 })();
 </script>
-<script>(function(){var w=document.querySelector('.shots-wrap');if(!w)return;var s=w.querySelector('.shots');function step(){var i=s.querySelector('img');return ((i?i.getBoundingClientRect().width:230)+18)*2;}var p=w.querySelector('.prev'),n=w.querySelector('.next');p&&p.addEventListener('click',function(){s.scrollBy({left:-step(),behavior:'smooth'});});n&&n.addEventListener('click',function(){s.scrollBy({left:step(),behavior:'smooth'});});})();</script>
 </body>
 </html>
