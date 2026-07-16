@@ -53,7 +53,7 @@
   /* Screenshot strip */
   .shots { display:flex; gap:16px; overflow-x:auto; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; scrollbar-width:none; margin:26px 0 34px; padding-bottom:6px; }
   .shots::-webkit-scrollbar { display:none; }
-  .shots img { width:216px; flex:0 0 auto; scroll-snap-align:center; filter:drop-shadow(0 12px 30px rgba(0,0,0,.45)); }
+  .shots img { width:216px; flex:0 0 auto; scroll-snap-align:center; border-radius:22px; filter:drop-shadow(0 12px 30px rgba(0,0,0,.45)); }
   .phones img, .shots img { cursor:zoom-in; transition:transform .15s ease; }
   .shots img:hover { transform:translateY(-3px); }
   .shots-wrap { position:relative; }
