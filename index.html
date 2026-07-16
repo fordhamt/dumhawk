@@ -51,10 +51,16 @@
   .phones .front { width:60%; right:4%; }
 
   /* Screenshot strip */
-  .shots { display:flex; gap:18px; justify-content:center; flex-wrap:wrap; margin:26px 0 34px; }
-  .shots img { width:210px; filter:drop-shadow(0 12px 30px rgba(0,0,0,.45)); }
+  .shots { display:flex; gap:16px; overflow-x:auto; scroll-snap-type:x proximity; -webkit-overflow-scrolling:touch; scrollbar-width:none; margin:26px 0 34px; padding-bottom:6px; }
+  .shots::-webkit-scrollbar { display:none; }
+  .shots img { width:216px; flex:0 0 auto; scroll-snap-align:center; filter:drop-shadow(0 12px 30px rgba(0,0,0,.45)); }
   .phones img, .shots img { cursor:zoom-in; transition:transform .15s ease; }
   .shots img:hover { transform:translateY(-3px); }
+  .shots-wrap { position:relative; }
+  .shots-nav { position:absolute; top:50%; transform:translateY(-50%); z-index:5; width:46px; height:46px; border-radius:50%; border:0; background:rgba(255,255,255,.16); color:#fff; font-size:26px; line-height:1; cursor:pointer; display:none; align-items:center; justify-content:center; padding:0 0 4px; transition:background .15s; }
+  .shots-nav:hover { background:rgba(255,255,255,.3); }
+  .shots-nav.prev { left:8px; } .shots-nav.next { right:8px; }
+  @media (min-width:760px){ .shots-nav { display:flex; } }
   .dots { display:none; }   /* carousel position dots — shown on mobile only */
 
   /* Click-to-enlarge lightbox */
@@ -117,12 +123,17 @@
     </div>
   </section>
 
-  <div class="shots">
-    <img src="https://dumhawk.com/assets/floofs/phone-scroll-feed.webp" alt="Only Floofs feed">
-    <img src="https://dumhawk.com/assets/floofs/phone-explore-grid.webp" alt="Only Floofs explore grid">
-    <img src="https://dumhawk.com/assets/floofs/phone-leaderboard.webp" alt="Only Floofs leaderboard">
-    <img src="https://dumhawk.com/assets/floofs/phone-pet-of-the-day.webp" alt="Only Floofs pet of the day">
-  </div>
+  <div class="shots-wrap"><button class="shots-nav prev" type="button" aria-label="Scroll to previous screenshots" onclick="this.parentNode.querySelector('.shots').scrollBy({left:-520})">‹</button>
+<div class="shots">
+<img src="https://dumhawk.com/assets/floofs/1-scroll.webp" alt="Only Floofs scrolling feed of cute pets" loading="lazy">
+<img src="https://dumhawk.com/assets/floofs/2-endless.webp" alt="Only Floofs endless pet feed" loading="lazy">
+<img src="https://dumhawk.com/assets/floofs/3-loved.webp" alt="Hearting a favorite pet on Only Floofs" loading="lazy">
+<img src="https://dumhawk.com/assets/floofs/4-pet-of-day.webp" alt="Only Floofs Pet of the Day" loading="lazy">
+<img src="https://dumhawk.com/assets/floofs/5-this-or-that.webp" alt="Only Floofs This or That matchup" loading="lazy">
+<img src="https://dumhawk.com/assets/floofs/6-leaderboard.webp" alt="Only Floofs leaderboard" loading="lazy">
+<img src="https://dumhawk.com/assets/floofs/7-floof-madness.webp" alt="Only Floofs Floof Madness bracket" loading="lazy">
+</div>
+<button class="shots-nav next" type="button" aria-label="Scroll to next screenshots" onclick="this.parentNode.querySelector('.shots').scrollBy({left:520})">›</button></div>
   <div class="dots" id="shotDots" aria-hidden="true"></div>
 
   <div class="sub">Also from DUMHAWK</div>
