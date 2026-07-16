@@ -113,7 +113,7 @@ background:linear-gradient(90deg,#db3eb1,#41b6e6);box-shadow:0 12px 30px rgba(21
 .trust{margin:18px 0 0;color:#8e8e9a;font-size:13.5px}
 .browse{margin:14px 0 0;color:#c4c0d4;font-size:14.5px}
 .browse a{font-weight:700}
-.shots{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 4px 18px;margin:44px auto 0}.shots::-webkit-scrollbar{display:none}
+.shots{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x proximity;scroll-behavior:smooth;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 4px 18px;margin:44px auto 0}.shots::-webkit-scrollbar{display:none}
 .shots img{flex:0 0 auto;width:216px;height:auto;scroll-snap-align:center;cursor:zoom-in;border-radius:22px;transition:transform .18s ease;filter:drop-shadow(0 16px 36px rgba(0,0,0,.5))}
 .shots img:hover{transform:translateY(-5px)}
 .shots-wrap{position:relative}
@@ -168,7 +168,7 @@ footer a{color:#a9a9b8}
 <p class="browse">It's not only paws &rarr; browse <a href="/only-floofs/cats">cute cats</a>, <a href="/only-floofs/dogs">cute dogs</a>, and <a href="/not-only-paws">every other animal</a>.</p>
 </header>
 
-<div class="shots-wrap"><button class="shots-nav prev" type="button" aria-label="Scroll to previous screenshots" onclick="this.parentNode.querySelector('.shots').scrollBy({left:-520,behavior:'smooth'})">‹</button>
+<div class="shots-wrap"><button class="shots-nav prev" type="button" aria-label="Scroll to previous screenshots" onclick="this.parentNode.querySelector('.shots').scrollBy({left:-520})">‹</button>
 <div class="shots">
 <img src="/assets/floofs/1-scroll.webp" alt="Only Floofs scrolling feed of cute pets" loading="lazy">
 <img src="/assets/floofs/2-endless.webp" alt="Only Floofs endless pet feed" loading="lazy">
@@ -178,7 +178,7 @@ footer a{color:#a9a9b8}
 <img src="/assets/floofs/6-leaderboard.webp" alt="Only Floofs leaderboard" loading="lazy">
 <img src="/assets/floofs/7-floof-madness.webp" alt="Only Floofs Floof Madness bracket" loading="lazy">
 </div>
-<button class="shots-nav next" type="button" aria-label="Scroll to next screenshots" onclick="this.parentNode.querySelector('.shots').scrollBy({left:520,behavior:'smooth'})">›</button></div>
+<button class="shots-nav next" type="button" aria-label="Scroll to next screenshots" onclick="this.parentNode.querySelector('.shots').scrollBy({left:520})">›</button></div>
 
 <section class="sec">
 <div class="kicker">What is Only Floofs?</div>
