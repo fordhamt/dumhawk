@@ -1,0 +1,9 @@
+# Short aliases for the Only Floofs pages. "floof"/"floofs" (and the
+# unhyphenated brand name) all land on /only-floofs, subpaths included,
+# so dumhawk.com/floofs works in bios and spoken mentions.
+/floof /only-floofs/ 301
+/floof/* /only-floofs/:splat 301
+/floofs /only-floofs/ 301
+/floofs/* /only-floofs/:splat 301
+/onlyfloofs /only-floofs/ 301
+/onlyfloofs/* /only-floofs/:splat 301
