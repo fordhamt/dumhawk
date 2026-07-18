@@ -85,7 +85,7 @@ const fmtDate = (iso) => {
   } catch { return ""; }
 };
 
-function page(post, canonical, related = []) {
+function page(post, canonical, related = [], rawOg = false) {
   const pet = post?.pet || {};
   const name = pet.name || "A floof";
   const breed = pet.breed || "";
@@ -100,10 +100,12 @@ function page(post, canonical, related = []) {
   const posted = fmtDate(post?.createdAt);
   const potdDate = post?.lucky && post?.luckyDate ? fmtDate(post.luckyDate) : "";
   const hallOfFame = !!post?.hallOfFame;
-  // og:image prefers the branded share card (photo + wordmark) for the unfurl;
-  // the visible card uses the RAW photo.
-  const ogImg = post?.cardURL || post?.imageURL || post?.thumbURL || `${SITE}/assets/floofs/loki-main.jpg`;
-  const photo = post?.imageURL || post?.thumbURL || ogImg;
+  // The visible card always uses the RAW pet photo. og:image (what a pasted link
+  // unfurls) defaults to the BRANDED share card so the wordmark travels — EXCEPT when
+  // ?og=raw is set, which the app appends ONLY for r/onlyfloofs shares so Reddit gets
+  // the plain photo (a branded card there reads like an ad; the sub prefers raw).
+  const photo = post?.imageURL || post?.thumbURL || `${SITE}/assets/floofs/loki-main.jpg`;
+  const ogImg = rawOg ? photo : (post?.cardURL || photo);
   const hearts = (post?.hearts || 0).toLocaleString();
   const likes = (post?.likes || 0).toLocaleString();
 
@@ -383,15 +385,20 @@ async function fetchRelated(post, excludeId, want = 6) {
   } catch { return []; }
 }
 
-export const onRequestGet = async ({ params }) => {
+export const onRequestGet = async ({ params, request }) => {
   const id = params?.id ? decodeURIComponent(params.id) : null;
   const canonical = `${SITE}/only-floofs/p/${encodeURIComponent(id || "")}`;
   const post = id ? await fetchPost(id) : null;
   const related = post ? await fetchRelated(post, id) : [];
+  // The app appends ?og=raw only on r/onlyfloofs shares, so the unfurl uses the plain
+  // photo instead of the branded card. A distinct query string is its own edge-cache
+  // entry, so it never bleeds into the branded unfurl other platforms get.
+  let rawOg = false;
+  try { rawOg = new URL(request.url).searchParams.get("og") === "raw"; } catch {}
   // A real pet page edge-caches; the generic fallback caches only briefly so a
   // transient API blip can never freeze a shared pet on the no-pet page.
   const cache = post ? "public, max-age=60, s-maxage=300" : "public, max-age=10, s-maxage=10";
-  return new Response(page(post, canonical, related), {
+  return new Response(page(post, canonical, related, rawOg), {
     headers: { "content-type": "text/html; charset=utf-8", "cache-control": cache },
   });
 };

@@ -28,17 +28,43 @@
 <meta name="twitter:image" content="https://dumhawk.com/assets/floofs/loki-main.jpg" />
 <script type="application/ld+json">
 {
-"@context": "https://schema.org",
-"@type": "MobileApplication",
-"name": "Only Floofs",
-"operatingSystem": "iOS",
-"applicationCategory": "PhotoApplication",
-"description": "An endless feed of the internet's cutest pets. Swipe, heart your favorites, follow the floofs you love, climb the leaderboards, and make your own pet famous.",
-"url": "https://dumhawk.com/only-floofs/",
-"downloadUrl": "https://apps.apple.com/app/only-floofs/id6781334218",
-"installUrl": "https://apps.apple.com/app/only-floofs/id6781334218",
-"offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-"author": { "@type": "Person", "name": "Paul Fordham" }, "creator": { "@type": "Person", "name": "Paul Fordham" }, "publisher": { "@type": "Organization", "name": "dumhawk", "url": "https://dumhawk.com", "founder": { "@type": "Person", "name": "Paul Fordham" } }
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://dumhawk.com/only-floofs/#brand",
+      "name": "Only Floofs",
+      "alternateName": ["onlyfloofs", "onlypaws", "onlyfloofsapp"],
+      "url": "https://dumhawk.com/only-floofs/",
+      "description": "Only Floofs is the pet photo app where cats and dogs become famous: an endless scroll of adorable pets, hearts, leaderboards, and a daily Pet of the Day.",
+      "founder": { "@type": "Person", "name": "Paul Fordham" },
+      "sameAs": [
+        "https://apps.apple.com/app/only-floofs/id6781334218",
+        "https://www.youtube.com/@onlyfloofsapp",
+        "https://www.reddit.com/r/onlyfloofs",
+        "https://www.tiktok.com/@onlyfloofsapp",
+        "https://www.facebook.com/onlyfloofsapp",
+        "https://www.instagram.com/onlyfloofsapp"
+      ]
+    },
+    {
+      "@type": "MobileApplication",
+      "@id": "https://dumhawk.com/only-floofs/#app",
+      "name": "Only Floofs",
+      "operatingSystem": "iOS",
+      "applicationCategory": "PhotoApplication",
+      "description": "An endless feed of the internet's cutest cats and dogs. Swipe, heart your favorites, follow the floofs you love, climb the leaderboards, and make your own pet famous.",
+      "url": "https://dumhawk.com/only-floofs/",
+      "downloadUrl": "https://apps.apple.com/app/only-floofs/id6781334218",
+      "installUrl": "https://apps.apple.com/app/only-floofs/id6781334218",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+      "aggregateRating": { "@type": "AggregateRating", "ratingValue": "5", "ratingCount": "7", "bestRating": "5", "worstRating": "1" },
+      "author": { "@type": "Person", "name": "Paul Fordham" },
+      "creator": { "@type": "Person", "name": "Paul Fordham" },
+      "brand": { "@id": "https://dumhawk.com/only-floofs/#brand" },
+      "publisher": { "@id": "https://dumhawk.com/only-floofs/#brand" }
+    }
+  ]
 }
 </script>
 <script type="application/ld+json">
@@ -90,10 +116,16 @@ background:linear-gradient(90deg,#db3eb1,#41b6e6);box-shadow:0 12px 30px rgba(21
 .trust{margin:18px 0 0;color:#8e8e9a;font-size:13.5px}
 .browse{margin:14px 0 0;color:#c4c0d4;font-size:14.5px}
 .browse a{font-weight:700}
-.shots{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;max-width:520px;margin:46px auto 0}
-.shots img{width:100%;height:auto;cursor:zoom-in;border-radius:22px;transition:transform .18s ease;filter:drop-shadow(0 16px 36px rgba(0,0,0,.5))}
+.shots{display:flex;gap:16px;overflow-x:auto;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 4px 18px;margin:44px auto 0}.shots::-webkit-scrollbar{display:none}
+.shots img{flex:0 0 auto;width:216px;height:auto;scroll-snap-align:center;cursor:zoom-in;border-radius:22px;transition:transform .18s ease;filter:drop-shadow(0 16px 36px rgba(0,0,0,.5))}
 .shots img:hover{transform:translateY(-5px)}
-@media (min-width:760px){ .shots{grid-template-columns:repeat(4,1fr);gap:18px;max-width:none;margin:56px 0 0} }
+.shots-wrap{position:relative}
+.shots-nav{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:26px;line-height:1;cursor:pointer;display:none;align-items:center;justify-content:center;padding:0 0 4px;transition:background .15s}
+.shots-nav:hover{background:rgba(255,255,255,.3)}
+.shots-nav.prev{left:8px}
+.shots-nav.next{right:8px}
+@media (min-width:760px){ .shots-nav{display:flex} }
+@media (min-width:760px){ .shots{gap:20px;margin:52px 0 0;justify-content:flex-start} .shots img{width:248px} }
 .sec{margin-top:66px}
 .sec .kicker{font-size:13px;font-weight:800;letter-spacing:.6px;text-transform:uppercase;color:#9a93ad;text-align:center}
 .sec h2{font-size:clamp(26px,4vw,34px);line-height:1.15;letter-spacing:-.6px;text-align:center;color:#fff;margin:8px 0 28px;font-weight:800}
@@ -140,12 +172,17 @@ footer a{color:#a9a9b8}
 <p class="browse">Community &rarr; join <a href="https://www.reddit.com/r/onlyfloofs/" rel="noopener">r/onlyfloofs</a> on Reddit.</p>
 </header>
 
+<div class="shots-wrap"><button class="shots-nav prev" type="button" aria-label="Scroll to previous screenshots" onclick="this.parentNode.querySelector('.shots').scrollBy({left:-520})">‹</button>
 <div class="shots">
-<img src="/assets/floofs/phone-swipe-deck.webp" alt="Only Floofs swipe deck">
-<img src="/assets/floofs/phone-scroll-feed.webp" alt="Only Floofs feed">
-<img src="/assets/floofs/phone-profile.webp" alt="Only Floofs pet profile">
-<img src="/assets/floofs/phone-pet-of-the-day.webp" alt="Only Floofs pet of the day">
+<img src="/assets/floofs/1-scroll.webp" alt="Only Floofs scrolling feed of cute pets" loading="lazy">
+<img src="/assets/floofs/2-endless.webp" alt="Only Floofs endless pet feed" loading="lazy">
+<img src="/assets/floofs/3-loved.webp" alt="Hearting a favorite pet on Only Floofs" loading="lazy">
+<img src="/assets/floofs/4-pet-of-day.webp" alt="Only Floofs Pet of the Day" loading="lazy">
+<img src="/assets/floofs/5-this-or-that.webp" alt="Only Floofs This or That matchup" loading="lazy">
+<img src="/assets/floofs/6-leaderboard.webp" alt="Only Floofs leaderboard" loading="lazy">
+<img src="/assets/floofs/7-floof-madness.webp" alt="Only Floofs Floof Madness bracket" loading="lazy">
 </div>
+<button class="shots-nav next" type="button" aria-label="Scroll to next screenshots" onclick="this.parentNode.querySelector('.shots').scrollBy({left:520})">›</button></div>
 
 <section class="sec">
 <div class="kicker">What is Only Floofs?</div>
@@ -190,6 +227,13 @@ footer a{color:#a9a9b8}
 <a href="https://dumhawk.com/only-floofs/support.html">Support</a> ·
 <a href="https://www.reddit.com/r/onlyfloofs/" rel="noopener">r/onlyfloofs</a> ·
 <a href="mailto:support@dumhawk.com">support@dumhawk.com</a>
+<div class="socials" style="margin-top:18px;font-size:15px">
+<a href="https://www.youtube.com/@onlyfloofsapp" rel="me"><svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:-2px;margin-right:5px" aria-hidden="true"><path fill="#FF0000" d="M23.5 6.5a3 3 0 0 0-2.1-2.1C19.5 3.8 12 3.8 12 3.8s-7.5 0-9.4.6A3 3 0 0 0 .5 6.5 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.5 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.5z"/><path fill="#fff" d="M9.5 15.5v-7l6 3.5z"/></svg>YouTube</a> ·
+<a href="https://www.reddit.com/r/onlyfloofs" rel="me"><svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:-2px;margin-right:5px" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="#FF4500"/><path fill="#fff" d="M20 12a2 2 0 0 0-3.4-1.4 9.7 9.7 0 0 0-5-1.6l.9-4 2.8.6a1.4 1.4 0 1 0 .2-.9l-3.3-.7-1.2 5.1a9.7 9.7 0 0 0-5.2 1.6A2 2 0 1 0 4 14.3q0 .3 0 .6c0 3 3.6 5.5 8 5.5s8-2.5 8-5.5q0-.3 0-.6A2 2 0 0 0 20 12zM8 13.5a1.3 1.3 0 1 1 2.5 0 1.3 1.3 0 0 1-2.5 0zm7 3.6a4.7 4.7 0 0 1-3 .9 4.7 4.7 0 0 1-3-.9.4.4 0 0 1 .6-.6c.6.5 1.5.7 2.4.7s1.8-.2 2.4-.7a.4.4 0 1 1 .6.6zm-.3-2.3a1.3 1.3 0 1 1 0-2.6 1.3 1.3 0 0 1 0 2.6z"/></svg>r/onlyfloofs</a> ·
+<a href="https://www.tiktok.com/@onlyfloofsapp" rel="me"><svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:-2px;margin-right:5px" aria-hidden="true"><path fill="#EE1D52" d="M16.5 2h3c.3 1.7 1.1 3 2.4 3.9.9.6 1.9.9 2.9 1v3.1c-1.8 0-3.5-.5-5-1.5v6.6a6.5 6.5 0 1 1-6.5-6.5c.4 0 .8 0 1.2.1v3.2a3.3 3.3 0 1 0 2.2 3.1V2z"/></svg>TikTok</a> ·
+<a href="https://www.instagram.com/onlyfloofsapp" rel="me"><svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:-2px;margin-right:5px" aria-hidden="true"><path fill="#E4405F" d="M12 2.2c3.2 0 3.6 0 4.9.07 1.2.06 1.8.25 2.2.42.6.22 1 .48 1.4.9.42.4.68.8.9 1.4.17.4.36 1 .42 2.2.06 1.3.07 1.7.07 4.9s0 3.6-.07 4.9c-.06 1.2-.25 1.8-.42 2.2-.22.6-.48 1-.9 1.4-.4.42-.8.68-1.4.9-.4.17-1 .36-2.2.42-1.3.06-1.7.07-4.9.07s-3.6 0-4.9-.07c-1.2-.06-1.8-.25-2.2-.42-.6-.22-1-.48-1.4-.9-.42-.4-.68-.8-.9-1.4-.17-.4-.36-1-.42-2.2-.06-1.3-.07-1.7-.07-4.9s0-3.6.07-4.9c.06-1.2.25-1.8.42-2.2.22-.6.48-1 .9-1.4.4-.42.8-.68 1.4-.9.4-.17 1-.36 2.2-.42 1.3-.06 1.7-.07 4.9-.07m0 1.98c-3.15 0-3.5.01-4.75.07-1.14.05-1.76.24-2.17.4-.55.2-.94.47-1.35.88-.41.41-.68.8-.88 1.35-.16.41-.35 1.03-.4 2.17-.06 1.25-.07 1.6-.07 4.75s.01 3.5.07 4.75c.05 1.14.24 1.76.4 2.17.2.55.47.94.88 1.35.41.41.8.68 1.35.88.41.16 1.03.35 2.17.4 1.25.06 1.6.07 4.75.07s3.5-.01 4.75-.07c1.14-.05 1.76-.24 2.17-.4.55-.2.94-.47 1.35-.88.41-.41.68-.8.88-1.35.16-.41.35-1.03.4-2.17.06-1.25.07-1.6.07-4.75s-.01-3.5-.07-4.75c-.05-1.14-.24-1.76-.4-2.17-.2-.55-.47-.94-.88-1.35-.41-.41-.8-.68-1.35-.88-.41-.16-1.03-.35-2.17-.4-1.25-.06-1.6-.07-4.75-.07m0 3.37a4.45 4.45 0 1 1 0 8.9 4.45 4.45 0 0 1 0-8.9m0 1.98a2.47 2.47 0 1 0 0 4.94 2.47 2.47 0 0 0 0-4.94m5.66-.15a1.04 1.04 0 1 1-2.08 0 1.04 1.04 0 0 1 2.08 0"/></svg>Instagram</a> ·
+<a href="https://www.facebook.com/onlyfloofsapp" rel="me"><svg width="15" height="15" viewBox="0 0 24 24" style="vertical-align:-2px;margin-right:5px" aria-hidden="true"><path fill="#1877F2" d="M24 12a12 12 0 1 0-13.9 11.9v-8.4H7.1V12h3V9.4c0-3 1.8-4.6 4.5-4.6 1.3 0 2.7.2 2.7.2v2.9h-1.5c-1.5 0-1.9.9-1.9 1.8V12h3.3l-.5 3.5h-2.8v8.4A12 12 0 0 0 24 12z"/></svg>Facebook</a>
+</div>
 </footer>
 </div>
 <div id="lb" aria-hidden="true"><span class="x" aria-label="Close">&times;</span><img alt=""></div>
