@@ -1,0 +1,44 @@
+name: Update App Store rating
+
+# Keeps the visible + structured-data rating on the Only Floofs page in sync with
+# the live App Store numbers. Runs once a day (and on demand). Only commits when
+# the number actually changed, so it stays quiet otherwise. The commit message
+# deliberately avoids "[skip ci]" so Cloudflare Pages still rebuilds on the push.
+
+on:
+  schedule:
+    - cron: "17 13 * * *" # ~13:17 UTC daily (a few min past the hour, off the load spike)
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-app-rating
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Sync rating from the App Store
+        run: node scripts/update-app-rating.mjs
+
+      - name: Commit if the rating changed
+        run: |
+          if [[ -n "$(git status --porcelain only-floofs/index.html)" ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add only-floofs/index.html
+            git commit -m "chore: sync Only Floofs App Store rating"
+            git push
+            echo "Pushed updated rating."
+          else
+            echo "No rating change — nothing to commit."
+          fi
