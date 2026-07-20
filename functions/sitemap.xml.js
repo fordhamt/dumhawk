@@ -25,6 +25,10 @@ const STATIC = [
   { loc: `${SITE}/only-floofs/cats`, priority: "0.9", changefreq: "daily" },
   { loc: `${SITE}/only-floofs/dogs`, priority: "0.9", changefreq: "daily" },
   { loc: `${SITE}/not-only-paws`, priority: "0.8", changefreq: "weekly" },
+  // Winners pages: fresh daily/twice-weekly content, strong crawl magnets.
+  { loc: `${SITE}/only-floofs/pet-of-the-day`, priority: "0.9", changefreq: "daily" },
+  { loc: `${SITE}/only-floofs/top-floofs`, priority: "0.8", changefreq: "daily" },
+  { loc: `${SITE}/only-floofs/champions`, priority: "0.8", changefreq: "weekly" },
   // Extensionless canonical URLs: Cloudflare 301-redirects the .html versions to
   // these, so listing .html made Google report "Page with redirect."
   { loc: `${SITE}/only-floofs/support`, priority: "0.3", changefreq: "monthly" },
