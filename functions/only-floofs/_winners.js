@@ -84,9 +84,9 @@ function shell(c, winners, hero) {
 <meta name="author" content="Paul Fordham">
 <meta name="keywords" content="${esc(c.kw)}">
 <meta name="robots" content="index,follow">
-<link rel="canonical" href="${esc(canonical)}">
+<link rel="canonical" href="${esc(canonical)}">\n<meta name="p:domain_verify" content="d3874ef349369f6d50994ee63caf7025"/>
 <meta name="apple-itunes-app" content="app-id=${APP_ID}, app-clip-bundle-id=com.onlyfloofs.app.Clip">
-<meta property="og:site_name" content="Only Floofs"><meta property="og:title" content="${esc(c.h1)} on Only Floofs"><meta property="og:description" content="${esc(c.desc)}"><meta property="og:type" content="website"><meta property="og:url" content="${esc(canonical)}">${ogImg ? `<meta property="og:image" content="${esc(ogImg)}">` : ""}
+<meta property="og:site_name" content="Only Floofs"><meta property="og:title" content="${esc(c.h1)} on Only Floofs"><meta property="og:description" content="${esc(c.desc)}"><meta property="og:type" content="website"><meta property="og:url" content="${esc(canonical)}">${ogImg ? `<meta property="og:image" content="${esc(ogImg)}"><meta property="og:image:alt" content="${esc((hero && hero.alt) || (winners[0] && winners[0].alt) || c.h1)}">` : ""}
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(c.h1)} on Only Floofs"><meta name="twitter:description" content="${esc(c.desc)}">${ogImg ? `<meta name="twitter:image" content="${esc(ogImg)}">` : ""}
 <script type="application/ld+json">${ldJson(ld)}</script>
 <style>
@@ -116,8 +116,10 @@ footer{margin-top:30px;color:#7d7790;font-size:13px;border-top:1px solid rgba(25
 ${heroHtml}
 ${grid}
 <p class="lead">${esc(c.blurb)}</p>
+${c.embed ? `<section class="faq"><h2>Put Pet of the Day on your site</h2><p style="color:#c9c6d4">Pet blog or fan page? Embed the live winner card anywhere with this snippet. It updates itself every day.</p><pre style="background:#15151b;border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px;overflow:auto;font-size:12.5px;color:#cfc9da">&lt;iframe src="https://dumhawk.com/only-floofs/widget" width="320" height="430" style="border:0;border-radius:16px" title="Only Floofs Pet of the Day"&gt;&lt;/iframe&gt;</pre></section>` : ""}
 ${faq}
 <footer>${esc(c.h1)} on <a href="/only-floofs/">Only Floofs</a>, the home of the internet's cutest pets. Also see ${relNav}. <a href="${esc(APPSTORE)}">Get the free iOS app</a> and put your own floof in the running.</footer>
+<script async defer data-pin-hover="true" src="https://assets.pinterest.com/js/pinit.js"></script>
 </div></body></html>`, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=600, s-maxage=1800" } });
 }
 
@@ -178,6 +180,7 @@ export async function renderPetOfDay() {
       { q: "Can my pet win Pet of the Day?", a: "Yes. Post a photo in the free Only Floofs app and it competes automatically. Winners keep their spot in the Hall of Fame forever." },
     ],
     related: REL.potd,
+    embed: true,
   };
   return shell(c, winners, hero);
 }
@@ -247,4 +250,37 @@ export async function renderTopFloofs() {
     related: REL.top,
   };
   return shell(c, winners, hero);
+}
+
+// /only-floofs/widget — the embeddable Pet of the Day card (framable by any
+// site; every embed is a live backlink). Compact, self-contained, no scripts.
+export async function renderWidget() {
+  const today = await getJson("/pet-of-the-day");
+  const pet = (today && today.pet) || {};
+  const img = today && (today.thumbURL || today.imageURL);
+  const name = pet.name || "Today's floof";
+  const crowned = !!(today && today.crowned);
+  const link = `${SITE}/only-floofs/pet-of-the-day?utm_source=widget`;
+  const body = img ? `
+  <a class="card" href="${esc(link)}" target="_blank" rel="noopener">
+    <img src="${esc(img)}" alt="${esc(name)}, Pet of the Day on Only Floofs">
+    <div class="t"><span class="crown">👑</span><b>${esc(name)}</b>
+    <i>${crowned ? "Pet of the Day" : "Leading Pet of the Day"}</i></div>
+  </a>` : `<p class="empty">Today's floof is loading…</p>`;
+  return new Response(`<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Pet of the Day · Only Floofs</title>
+<style>*{box-sizing:border-box}body{margin:0;font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;background:#0b0b0f;color:#f2f2f7}
+.wrap{padding:12px}
+.card{display:block;text-decoration:none;color:#f2f2f7;background:#15151b;border:1px solid rgba(255,215,80,.35);border-radius:16px;overflow:hidden}
+.card img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block}
+.t{padding:10px 12px}.t b{display:block;font-size:16px}.t i{color:#c9c6d4;font-style:normal;font-size:12.5px}
+.crown{float:right;font-size:18px}
+.brand{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:#9a93ad}
+.brand a{color:#b9a3ff;text-decoration:none;font-weight:700}
+.empty{color:#c9c6d4;text-align:center;padding:30px 8px}</style></head>
+<body><div class="wrap">${body}
+<div class="brand">One pet crowned daily on <a href="${esc(SITE)}/only-floofs/?utm_source=widget" target="_blank" rel="noopener">Only Floofs</a></div>
+</div></body></html>`, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=600, s-maxage=900" } });
 }

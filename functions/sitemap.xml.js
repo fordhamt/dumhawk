@@ -27,6 +27,9 @@ const STATIC = [
   { loc: `${SITE}/not-only-paws`, priority: "0.8", changefreq: "weekly" },
   // Winners pages: fresh daily/twice-weekly content, strong crawl magnets.
   { loc: `${SITE}/only-floofs/pet-of-the-day`, priority: "0.9", changefreq: "daily" },
+  { loc: `${SITE}/only-floofs/funny`, priority: "0.8", changefreq: "daily" },
+  { loc: `${SITE}/only-floofs/kittens`, priority: "0.8", changefreq: "daily" },
+  { loc: `${SITE}/only-floofs/puppies`, priority: "0.8", changefreq: "daily" },
   { loc: `${SITE}/only-floofs/top-floofs`, priority: "0.8", changefreq: "daily" },
   { loc: `${SITE}/only-floofs/champions`, priority: "0.8", changefreq: "weekly" },
   // Extensionless canonical URLs: Cloudflare 301-redirects the .html versions to
@@ -74,7 +77,8 @@ export const onRequestGet = async () => {
     const lastmod = p.createdAt ? new Date(p.createdAt).toISOString().slice(0, 10) : null;
     // Image extension: hand Google the actual pet photo for each page so the
     // cute cats/dogs surface in Image search, not just the web page.
-    const img = p.thumbURL || p.imageURL || p.pet?.avatarURL || null;
+    // Full-size first: Google Images prefers large images; thumb is the fallback.
+    const img = p.imageURL || p.thumbURL || p.pet?.avatarURL || null;
     const petName = p.pet?.name || p.name || "";
     const imgXml = img
       ? `<image:image><image:loc>${esc(img)}</image:loc>${petName ? `<image:title>${esc(petName)} on Only Floofs</image:title>` : ""}</image:image>`
@@ -99,6 +103,19 @@ export const onRequestGet = async () => {
     if (n < 3) continue;
     urls.push(`<url><loc>${esc(`${SITE}/only-floofs/animals/${slug}`)}</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>`);
   }
+
+  // Place pages (cute pets in {city/state}) with enough photos to be real.
+  try {
+    const r = await fetch(`${API}/leaderboards?index=1`, { cf: { cacheTtl: 3600 } });
+    if (r.ok) {
+      const places = (await r.json()).places || [];
+      for (const pl of places) {
+        if ((pl.count || 0) < 3) continue;
+        const s2 = slugify(pl.name);
+        if (s2) urls.push(`<url><loc>${esc(`${SITE}/only-floofs/in/${s2}`)}</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>`);
+      }
+    }
+  } catch {}
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">

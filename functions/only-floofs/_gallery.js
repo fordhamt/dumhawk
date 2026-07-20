@@ -103,6 +103,80 @@ const COPY = {
 // Facts are deliberately conservative and true of the breed in general; for CROSSES
 // we say "usually/often", because mixes vary and overclaiming would be wrong.
 // Unknown breeds simply fall back to the generic copy - never invent facts.
+// Query-matched hub pages (the Pinterest-board playbook): each targets a real
+// search cluster. filterKind narrows by caption/name keywords; when the catalog
+// is still too thin for a strict filter (< 12 matches), the page falls back to
+// the full species list so it never looks empty. Copy stays query-targeted.
+COPY.funny = {
+  path: "/only-floofs/funny", mix: true, filterKind: "funny",
+  title: "Funny Cat & Dog Pictures · the goofiest floofs on Only Floofs",
+  h1: "Funny pet pictures", emoji: "😂", oneLabel: "funny pet",
+  desc: "Funny cat pictures, funny dog pictures, and every goofball in between. Real pets being ridiculous on Only Floofs, updated daily.",
+  kw: "funny cat pictures, funny dog pictures, funny pets, silly cats, goofy dogs, derpy animals, funny animal photos",
+  lead: "The blep, the derp, the mid-zoomies freeze frame. These are the floofs the internet laughs with, fresh from the app every day.",
+  blurb: "Got a pet with main-character energy? Post them in the free Only Floofs app and let the world enjoy the chaos.",
+  faqs: [
+    { q: "Where do these funny pet pictures come from?", a: "Every photo is a real pet posted by its owner in the Only Floofs app and cleared by automated safety checks before appearing here." },
+    { q: "Can I share my funny cat or dog here?", a: "Yes. Post a photo in the free Only Floofs app; the funniest floofs rack up hearts and climb the daily leaderboards." },
+  ],
+  related: [
+    { path: "/only-floofs/cats", label: "Cute cats" },
+    { path: "/only-floofs/dogs", label: "Cute dogs" },
+    { path: "/only-floofs/pet-of-the-day", label: "Pet of the Day" },
+    { path: "/not-only-paws", label: "Every other animal" },
+  ],
+};
+COPY.kittens = {
+  path: "/only-floofs/kittens", species: "cat", filterKind: "kitten",
+  title: "Cute Kitten Pictures · adorable kittens on Only Floofs",
+  h1: "Cute kitten pictures", emoji: "🐱", oneLabel: "kitten",
+  desc: "Adorable kitten pictures from real owners. Tiny paws, big eyes, maximum floof, updated daily on Only Floofs.",
+  kw: "cute kitten pictures, kitten photos, adorable kittens, baby cats, tiny kittens, kitten pics",
+  lead: "Tiny paws, oversized eyes, and zero self-awareness. Real kittens (and honorary baby-faced cats) posted by their owners.",
+  blurb: "Have a kitten taking over your house? Post them in the free Only Floofs app and watch the hearts roll in.",
+  faqs: [
+    { q: "Are these real kittens?", a: "Yes. Every photo is a real pet posted by its owner in the Only Floofs app, checked by automated moderation before it goes public." },
+    { q: "How do I add my kitten?", a: "Download the free Only Floofs app, post a photo, and your kitten joins the feed, the contests, and pages like this one." },
+  ],
+  related: [
+    { path: "/only-floofs/cats", label: "All cute cats" },
+    { path: "/only-floofs/puppies", label: "Cute puppies" },
+    { path: "/only-floofs/pet-of-the-day", label: "Pet of the Day" },
+    { path: "/only-floofs/", label: "Only Floofs" },
+  ],
+};
+COPY.puppies = {
+  path: "/only-floofs/puppies", species: "dog", filterKind: "puppy",
+  title: "Cute Puppy Pictures · adorable puppies on Only Floofs",
+  h1: "Cute puppy pictures", emoji: "🐶", oneLabel: "puppy",
+  desc: "Adorable puppy pictures from real owners. Floppy ears, puppy eyes, and paws they have not grown into yet, updated daily.",
+  kw: "cute puppy pictures, puppy photos, adorable puppies, baby dogs, puppy pics, cute pups",
+  lead: "Floppy ears, puppy-dog eyes, and paws two sizes too big. Real puppies (and honorary baby-faced dogs) posted by their owners.",
+  blurb: "Raising a puppy? Post them in the free Only Floofs app; puppy pictures are heart magnets.",
+  faqs: [
+    { q: "Are these real puppies?", a: "Yes. Every photo is a real pet posted by its owner in the Only Floofs app, cleared by automated moderation before it appears." },
+    { q: "How do I add my puppy?", a: "Download the free Only Floofs app, post a photo, and your puppy joins the feed, the leaderboards, and pages like this one." },
+  ],
+  related: [
+    { path: "/only-floofs/dogs", label: "All cute dogs" },
+    { path: "/only-floofs/kittens", label: "Cute kittens" },
+    { path: "/only-floofs/pet-of-the-day", label: "Pet of the Day" },
+    { path: "/only-floofs/", label: "Only Floofs" },
+  ],
+};
+
+const FILTERS = {
+  funny: /funny|silly|goof|derp|blep|mlem|weird|chaos|drama|dramatic|crazy|zoomies|ridiculous|clown|potato|loaf|judg|guilty|caught|shame|no thoughts|unhinged|menace|feral|scream|😂|🤣|😹/i,
+  kitten: /kitten|kitty|baby|tiny|little|smol|wee|newborn|foster/i,
+  puppy: /pupp|\bpup\b|baby|tiny|little|smol|wee|newborn|foster/i,
+};
+const applyFilter = (pets, kind) => {
+  const re = FILTERS[kind];
+  if (!re) return pets;
+  const hit = pets.filter((p) => re.test(p.caption) || re.test(p.name) || re.test(p.breed));
+  return hit.length >= 12 ? hit : pets;   // thin catalog: fall back, stay generous
+};
+
 const BREED_FACTS = {
   "siberian-husky": { about: "Bred by the Chukchi people of northeastern Siberia to pull light loads over long distances, the Siberian Husky is built for endurance rather than raw power. The thick double coat sheds heavily twice a year, the eyes can be blue, brown, or one of each, and they tend to howl and 'talk' far more than they bark. They are affectionate and famously poor guard dogs, and they are determined escape artists who need real exercise.", traits: ["High energy", "Double coat", "Very vocal", "Escape artist"] },
   "husky-mix": { about: "Husky crosses usually keep the parts people notice first: the thick double coat, the talkativeness, and the energy. Coat and eye colour vary a lot depending on the other half, but most husky mixes want considerably more exercise and mental work than the average dog, and many inherit the breed's talent for getting out of a fenced yard.", traits: ["High energy", "Often vocal", "Sheds a lot"] },
@@ -148,6 +222,7 @@ function normalize(p) {
     breed: pet.breed || p.breed || "",
     species: String(p.species || pet.species || "").toLowerCase(),
     img: p.thumbURL || p.imageURL || pet.avatarURL || "",
+    caption: String(p.caption || ""),
     hearts: Number(p.hearts || 0),
     likes: Number(p.likes || 0),
   };
@@ -306,10 +381,10 @@ function buildPage(c, allPets, opts = {}) {
 <meta name="author" content="Paul Fordham">
 <meta name="keywords" content="${esc(c.kw)}">
 <meta name="robots" content="${robots}">
-<link rel="canonical" href="${esc(canonical)}">
+<link rel="canonical" href="${esc(canonical)}">\n<meta name="p:domain_verify" content="d3874ef349369f6d50994ee63caf7025"/>
 ${hasPrev ? `<link rel="prev" href="${esc(SITE + pageUrl(page - 1))}">` : ""}${hasNext ? `<link rel="next" href="${esc(SITE + pageUrl(page + 1))}">` : ""}
 <meta name="apple-itunes-app" content="app-id=${APP_ID}, app-clip-bundle-id=com.onlyfloofs.app.Clip">
-<meta property="og:site_name" content="Only Floofs"><meta property="og:title" content="${esc(c.h1)} on Only Floofs"><meta property="og:description" content="${esc(c.desc)}"><meta property="og:type" content="website"><meta property="og:url" content="${esc(canonical)}">${pets[0] ? `<meta property="og:image" content="${esc(pets[0].img)}">` : ""}
+<meta property="og:site_name" content="Only Floofs"><meta property="og:title" content="${esc(c.h1)} on Only Floofs"><meta property="og:description" content="${esc(c.desc)}"><meta property="og:type" content="website"><meta property="og:url" content="${esc(canonical)}">${pets[0] ? `<meta property="og:image" content="${esc(pets[0].img)}"><meta property="og:image:alt" content="${esc(`Cute ${pets[0].breed || pets[0].species || "pet"} named ${pets[0].name}`)}">` : ""}
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(c.h1)} on Only Floofs"><meta name="twitter:description" content="${esc(c.desc)}">${pets[0] ? `<meta name="twitter:image" content="${esc(pets[0].img)}">` : ""}
 <script type="application/ld+json">${ldJson(ld)}</script>
 <style>
@@ -347,6 +422,7 @@ ${pager}
 ${about}
 ${faq}
 <footer>${esc(c.h1)} on <a href="/only-floofs/">Only Floofs</a>, the home of the internet's cutest pets. Also see ${relNav}. New photos every day. Join the community at <a href="https://www.reddit.com/r/onlyfloofs/" rel="noopener">r/onlyfloofs</a>. <a href="${esc(APPSTORE)}">Get the free iOS app</a>.</footer>
+<script async defer data-pin-hover="true" src="https://assets.pinterest.com/js/pinit.js"></script>
 </div></body></html>`, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "public, max-age=600, s-maxage=3600" } });
 }
 
@@ -359,14 +435,16 @@ export async function render(key, request) {
   if (!c) return new Response("Not found", { status: 404 });
   const page = pageOf(request);
   if (c.mix) {
-    const { pets, speciesTally } = await fetchMixAll();
+    let { pets, speciesTally } = await fetchMixAll();
+    if (c.filterKind) pets = applyFilter(pets, c.filterKind);
     const chips = speciesTally
       .filter((t) => t.sp !== "cat" && t.sp !== "dog" && t.sp !== "other" && t.count >= 3)
       .sort((a, b) => b.count - a.count).slice(0, 12)
       .map((t) => ({ path: `/only-floofs/animals/${slugify(t.sp)}`, label: plural(title1(t.sp)) }));
     return buildPage(c, pets, { page, chips, chipsLabel: "Browse by animal" });
   }
-  const { pets, breeds } = await fetchSpeciesAll(c.species);
+  let { pets, breeds } = await fetchSpeciesAll(c.species);
+  if (c.filterKind) pets = applyFilter(pets, c.filterKind);
   const chips = c.showBreeds
     ? [...breeds.values()].filter((b) => b.count >= 2).sort((a, b) => b.count - a.count).slice(0, 14)
         .map((b) => ({ path: `/only-floofs/breed/${b.slug}`, label: b.label }))
@@ -443,4 +521,61 @@ export async function renderSpecies(speciesParam, request) {
     ],
   };
   return buildPage(c, pets, { page: pageOf(request), robots: pets.length < 3 ? "noindex,follow" : "index,follow" });
+}
+
+// /only-floofs/in/{slug} — pets from one place (city, state, or country), built
+// from the same places index that powers the app's Explore location filter.
+// Thin places (< 3 photos) noindex; unknown places 404. The wire param for a
+// state is "region", matching the app clients.
+export async function renderPlace(slugParam, request) {
+  const slug = slugify(slugParam);
+  if (!slug) return new Response("Not found", { status: 404 });
+  let places = [];
+  try {
+    const r = await fetch(`${API}/leaderboards?index=1`, { cf: { cacheTtl: 3600 } });
+    if (r.ok) places = (await r.json()).places || [];
+  } catch {}
+  const place = places.find((p) => slugify(p.name) === slug);
+  if (!place) return new Response("Not found", { status: 404 });
+
+  const param = place.kind === "city" ? "city" : place.kind === "state" ? "region" : "country";
+  const pets = [], seen = new Set();
+  const PAGE = 100;
+  for (let offset = 0; offset < CAP; offset += PAGE) {
+    let batch;
+    try {
+      const r = await fetch(`${API}/feed?limit=${PAGE}&offset=${offset}&${param}=${encodeURIComponent(place.name)}`, { cf: { cacheTtl: 600 } });
+      if (!r.ok) break;
+      batch = await r.json();
+    } catch { break; }
+    if (!Array.isArray(batch) || batch.length === 0) break;
+    for (const p of batch) {
+      const n = normalize(p);
+      if (!n.id || !n.img || seen.has(n.id)) continue;
+      seen.add(n.id); pets.push(n);
+    }
+    if (batch.length < PAGE || pets.length >= CAP) break;
+  }
+
+  const display = place.name;
+  const c = {
+    path: `/only-floofs/in/${slug}`,
+    title: `Cute Pets in ${display} · cats & dogs near you on Only Floofs`,
+    h1: `Cute pets in ${display}`, emoji: "📍", oneLabel: `${display} pet`,
+    desc: `The cutest cats, dogs, and floofs posted from ${display} on Only Floofs. Local leaderboards crown the cutest pets near you.`,
+    kw: `cute pets ${display}, cute dogs ${display}, cute cats ${display}, ${display} pets, pet photos ${display}`,
+    lead: `Real pets posted from ${display}. Every one competes on the app's local leaderboards, so the cutest floof in town gets the crown it deserves.`,
+    blurb: `Live in ${display}? Post your pet in the free Only Floofs app and represent your city on the local charts.`,
+    faqs: [
+      { q: `How do I see more pets from ${display}?`, a: `The free Only Floofs app has a location filter and city leaderboards, so you can browse and vote on floofs from ${display} and anywhere else.` },
+    ],
+    related: [
+      { path: "/only-floofs/cats", label: "Cute cats" },
+      { path: "/only-floofs/dogs", label: "Cute dogs" },
+      { path: "/only-floofs/top-floofs", label: "Top Floofs" },
+      { path: "/only-floofs/", label: "Only Floofs" },
+    ],
+  };
+  const page = pageOf(request);
+  return buildPage(c, pets, { page, robots: pets.length < 3 ? "noindex,follow" : "index,follow" });
 }
