@@ -62,7 +62,7 @@ const faqPaws = [
 const COPY = {
   cat: {
     path: "/only-floofs/cats", emoji: "🐱", species: "cat", oneLabel: "cat", showBreeds: true,
-    title: "Cute Cat Pictures — adorable cats on Only Floofs", h1: "Cute cat pictures",
+    title: "Cute Cat Pictures · adorable cats on Only Floofs", h1: "Cute cat pictures",
     lead: "A fresh, endless gallery of the internet's cutest cats. Every kitten and cat here was shared by its owner on Only Floofs and passed photo moderation, so it's all real, all adorable, and updated every day.",
     desc: "Browse the internet's cutest cat pictures on Only Floofs. Real cats and kittens shared by their owners, updated daily. Heart your favorites and make your own cat famous.",
     kw: "cute cats, cute cat pictures, cute cat photos, kitten pictures, cute kittens, cat pics, only floofs",
@@ -72,7 +72,7 @@ const COPY = {
   },
   dog: {
     path: "/only-floofs/dogs", emoji: "🐶", species: "dog", oneLabel: "dog", showBreeds: true,
-    title: "Cute Dog Pictures — adorable dogs on Only Floofs", h1: "Cute dog pictures",
+    title: "Cute Dog Pictures · adorable dogs on Only Floofs", h1: "Cute dog pictures",
     lead: "A fresh, endless gallery of the internet's cutest dogs. Every good boy and girl here was shared by its owner on Only Floofs and passed photo moderation, so it's all real, all adorable, and updated every day.",
     desc: "Browse the internet's cutest dog pictures on Only Floofs. Real dogs and puppies shared by their owners, updated daily. Heart your favorites and make your own dog famous.",
     kw: "cute dogs, cute dog pictures, dog pics, dog pictures, cute puppies, puppy pictures, only floofs",
@@ -82,7 +82,7 @@ const COPY = {
   },
   onlypaws: {
     path: "/not-only-paws", emoji: "🐾", mix: true, oneLabel: "animal", showSpecies: true,
-    title: "Not Only Paws — cats, dogs, reptiles, birds & more | Only Floofs", h1: "It's not only paws",
+    title: "Not Only Paws · cats, dogs, reptiles, birds & more | Only Floofs", h1: "It's not only paws",
     lead: "You came for the paws. Good news: it's not only paws. Only Floofs is stacked with cute cats and dogs, sure, but it's also home to reptiles, birds, bunnies, and every other floof worth a double-tap. So if you searched “only paws,” congrats, you found a whole lot more than only paws.",
     desc: "It's not only paws. Only Floofs has cute cats and dogs plus reptiles, birds, bunnies and more, all shared by their owners. Heart your favorites and make your own pet famous.",
     kw: "only paws, not only paws, cute animals, cute pets, reptiles, birds, bunnies, exotic pets, cute cats, cute dogs, only floofs",
@@ -115,28 +115,28 @@ const BREED_FACTS = {
   "german-shepherd-mix": { about: "German Shepherd crosses usually keep the intelligence, the loyalty and the drive to work. Size, coat and colour vary with the other half, but most want training, exercise and something to think about, and most shed more than their owners expected.", traits: ["Smart", "Loyal", "Active"] },
   "australian-cattle-dog": { about: "Also called the Blue Heeler or Red Heeler, bred to drive cattle across long distances in the Australian heat by nipping at their heels. The result is a compact, tireless, extremely intelligent dog with a mottled blue or red coat, a strong herding instinct, and almost no off switch. They are outstanding at dog sports and miserable when bored.", traits: ["Tireless", "Very smart", "Herding instinct", "Needs a job"] },
   "blue-heeler": { about: "Blue Heeler is the common name for the Australian Cattle Dog, bred to move cattle by nipping at their heels. Compact, mottled blue-grey, endlessly energetic and very intelligent, with a strong herding instinct that often shows up as gently herding the family.", traits: ["Tireless", "Very smart", "Herding instinct"] },
-  "aussie-blue-heeler": { about: "An Australian Shepherd crossed with a Blue Heeler (Australian Cattle Dog) — two herding breeds, so the result is usually a very intelligent, very high-drive dog. Expect strong herding instincts, real stamina, and a dog that genuinely needs a job, training or a sport rather than just a walk.", traits: ["Extremely high energy", "Very smart", "Strong herding drive"] },
+  "aussie-blue-heeler": { about: "An Australian Shepherd crossed with a Blue Heeler (Australian Cattle Dog), two herding breeds, so the result is usually a very intelligent, very high-drive dog. Expect strong herding instincts, real stamina, and a dog that genuinely needs a job, training or a sport rather than just a walk.", traits: ["Extremely high energy", "Very smart", "Strong herding drive"] },
   "australian-shepherd": { about: "Despite the name, the Aussie was developed largely on ranches in the western United States. It's a herding dog through and through: agile, bright, intensely bonded to its people, often merle-coated, and much happier with work to do than with a quiet afternoon.", traits: ["High energy", "Very smart", "Herding instinct"] },
   "border-collie": { about: "Widely considered the most intelligent dog breed, bred on the Anglo-Scottish border to gather sheep using an intense stare known as 'the eye'. Border Collies are athletic, obsessive, and extraordinarily trainable, and they are a poor fit for a household that can't give them mental work every single day.", traits: ["Most intelligent", "Obsessive", "Needs constant work"] },
-  "cocker-spaniel": { about: "A gundog bred to flush and retrieve woodcock, which is where the name comes from. Cockers are gentle, eager to please and merry by reputation, with a silky coat and long feathered ears — those ears trap moisture and need regular cleaning to stay healthy.", traits: ["Gentle", "Eager to please", "Feathered ears", "Needs grooming"] },
+  "cocker-spaniel": { about: "A gundog bred to flush and retrieve woodcock, which is where the name comes from. Cockers are gentle, eager to please and merry by reputation, with a silky coat and long feathered ears. Those ears trap moisture and need regular cleaning to stay healthy.", traits: ["Gentle", "Eager to please", "Feathered ears", "Needs grooming"] },
   "doberman-pinscher": { about: "Developed in 1890s Germany by a tax collector, Louis Dobermann, who wanted a protective dog to accompany him on his rounds. The modern Doberman is sleek, athletic and strikingly fast, highly intelligent, and far more affectionate with its own family than the reputation suggests. They are sensitive dogs who do badly when isolated.", traits: ["Athletic", "Very smart", "Loyal", "Protective"] },
   "labrador-retriever": { about: "Originally from Newfoundland, where it worked alongside fishermen hauling nets and retrieving fish, the Labrador is now the classic family dog for good reason: friendly, biddable, and endlessly food-motivated. The short double coat sheds more than people expect, and the appetite means weight gain is a genuine health issue for the breed.", traits: ["Friendly", "Food-motivated", "Sheds", "Great swimmer"] },
   "golden-retriever": { about: "Bred in the Scottish Highlands in the 1800s to retrieve waterfowl, the Golden is soft-mouthed, patient and famously good-natured. The long golden coat sheds heavily and needs regular brushing, and they stay playful and puppyish well into adulthood.", traits: ["Gentle", "Patient", "Heavy shedder", "Loves water"] },
-  "corgi": { about: "Both Corgi breeds — Pembroke and Cardigan — are short-legged herding dogs from Wales, built low to the ground so they could nip at cattle heels and duck the kick. They are bold, chatty and much sturdier than their size suggests, and that long back means jumping off furniture is worth discouraging.", traits: ["Short-legged", "Bold", "Herding instinct", "Big bark"] },
-  "shiba-inu": { about: "An ancient Japanese breed originally used to hunt small game in mountainous terrain. Shibas are famously independent, catlike in their fastidiousness, and not especially interested in pleasing you — which is precisely what their owners love. The 'Shiba scream' is real.", traits: ["Independent", "Catlike", "Strong-willed"] },
+  "corgi": { about: "Both Corgi breeds (Pembroke and Cardigan) are short-legged herding dogs from Wales, built low to the ground so they could nip at cattle heels and duck the kick. They are bold, chatty and much sturdier than their size suggests, and that long back means jumping off furniture is worth discouraging.", traits: ["Short-legged", "Bold", "Herding instinct", "Big bark"] },
+  "shiba-inu": { about: "An ancient Japanese breed originally used to hunt small game in mountainous terrain. Shibas are famously independent, catlike in their fastidiousness, and not especially interested in pleasing you, which is precisely what their owners love. The 'Shiba scream' is real.", traits: ["Independent", "Catlike", "Strong-willed"] },
   "pomeranian": { about: "A toy-sized descendant of much larger Arctic spitz sledding dogs, bred down in size and popularised by Queen Victoria. Tiny, profusely coated and convinced they are enormous, Poms are alert, bold and vocal, and that double coat needs real brushing.", traits: ["Toy size", "Big personality", "Fluffy", "Alert barker"] },
   "dachshund": { about: "German for 'badger dog', which is the job: the long body and short legs were built to follow a badger down its tunnel. That makes them tenacious, brave and stubborn to a fault. The long spine is genuinely fragile, so stairs and furniture jumps are worth managing.", traits: ["Tenacious", "Stubborn", "Long back", "Loud for its size"] },
   "chihuahua": { about: "The smallest dog breed, named for the Mexican state where it was first documented. Chihuahuas are alert, deeply attached to one person, and entirely unaware of their size. They feel the cold and often genuinely appreciate a sweater.", traits: ["Tiniest breed", "Bold", "One-person dog", "Feels the cold"] },
   "pit-bull": { about: "'Pit bull' is not one breed but a loose label covering the American Pit Bull Terrier, Staffordshire Terriers and similar dogs, which is why the look varies so much. They are typically strong, athletic, and notably people-oriented and affectionate with their families.", traits: ["Muscular", "Affectionate", "People-oriented"] },
-  "poodle": { about: "Originally a German water retriever, not a French fashion accessory — the elaborate show clip started as a practical way to keep the joints warm while swimming. Poodles are among the most intelligent breeds, and the curly coat sheds very little but must be clipped and brushed regularly.", traits: ["Very smart", "Low-shedding", "Needs clipping", "Good swimmer"] },
+  "poodle": { about: "Originally a German water retriever, not a French fashion accessory. The elaborate show clip started as a practical way to keep the joints warm while swimming. Poodles are among the most intelligent breeds, and the curly coat sheds very little but must be clipped and brushed regularly.", traits: ["Very smart", "Low-shedding", "Needs clipping", "Good swimmer"] },
   "beagle": { about: "A scent hound bred to hunt rabbits in packs, which explains most beagle behaviour: the nose leads, the recall is optional, and the famous bay carries for miles. They are sociable, sturdy and cheerful, and they will follow a smell straight out of an open gate.", traits: ["Nose-driven", "Sociable", "Loud bay", "Follows scent"] },
   "maine-coon": { about: "One of the largest domesticated cat breeds and a natural breed native to the northeastern United States, built for hard winters: a shaggy water-resistant coat, tufted ears, big snowshoe paws and a magnificent long tail. Despite the size they are gentle, sociable and often described as dog-like.", traits: ["Very large", "Gentle giant", "Shaggy coat", "Sociable"] },
-  "siamese": { about: "An old breed from Siam (now Thailand), instantly recognisable by the blue eyes and pointed coat — the dark points appear on the cooler parts of the body, which is why kittens are born pale. Siamese are famously talkative, intelligent and demanding of attention.", traits: ["Extremely vocal", "Smart", "Pointed coat", "Attention-seeking"] },
+  "siamese": { about: "An old breed from Siam (now Thailand), instantly recognisable by the blue eyes and pointed coat. The dark points appear on the cooler parts of the body, which is why kittens are born pale. Siamese are famously talkative, intelligent and demanding of attention.", traits: ["Extremely vocal", "Smart", "Pointed coat", "Attention-seeking"] },
   "ragdoll": { about: "Named for the tendency to go limp and relaxed when picked up. Ragdolls are large, blue-eyed, semi-longhaired cats bred specifically for a docile, placid temperament, and they tend to follow their people from room to room.", traits: ["Goes limp when held", "Docile", "Large", "Follows you around"] },
   "bengal": { about: "Created by crossing domestic cats with the Asian leopard cat, which is where the spotted or marbled 'wild' coat comes from. Bengals are exceptionally athletic and busy, often fascinated by running water, and they need far more play and climbing than the average cat.", traits: ["Wild-looking coat", "Very athletic", "Loves water", "Needs stimulation"] },
   "persian": { about: "One of the oldest recognised cat breeds, known for the long flowing coat, flat face and calm, quiet temperament. That coat mats without daily brushing, and the flattened facial structure can cause breathing and tear-drainage problems worth watching for.", traits: ["Long coat", "Calm", "Daily brushing", "Flat face"] },
-  "tabby": { about: "Tabby isn't a breed at all — it's a coat pattern, and it's the most common one in domestic cats. The M-shaped marking on the forehead is its signature, and it comes in classic (swirled), mackerel (striped), spotted and ticked variations across many breeds.", traits: ["A pattern, not a breed", "M on the forehead", "Very common"] },
-  "domestic-shorthair": { about: "Not a breed but the term for a mixed-ancestry cat with a short coat — the feline equivalent of a mutt, and the majority of pet cats. The genetic variety tends to make them robust, and personality and colour vary enormously.", traits: ["Mixed ancestry", "Most common cat", "Hardy"] },
+  "tabby": { about: "Tabby isn't a breed at all. It's a coat pattern, and it's the most common one in domestic cats. The M-shaped marking on the forehead is its signature, and it comes in classic (swirled), mackerel (striped), spotted and ticked variations across many breeds.", traits: ["A pattern, not a breed", "M on the forehead", "Very common"] },
+  "domestic-shorthair": { about: "Not a breed but the term for a mixed-ancestry cat with a short coat, the feline equivalent of a mutt, and the majority of pet cats. The genetic variety tends to make them robust, and personality and colour vary enormously.", traits: ["Mixed ancestry", "Most common cat", "Hardy"] },
 };
 const breedFacts = (slug, display) => BREED_FACTS[slug] || null;
 
@@ -295,7 +295,7 @@ function buildPage(c, allPets, opts = {}) {
     ${c.facts.traits && c.facts.traits.length ? `<div class="traits">${c.facts.traits.map((t) => `<span>${esc(t)}</span>`).join("")}</div>` : ""}
   </section>` : "";
   const ld = jsonld(c, canonical, pets);
-  const heading = page > 1 ? `${c.h1} — page ${page}` : c.h1;
+  const heading = page > 1 ? `${c.h1} · page ${page}` : c.h1;
 
   return new Response(`<!DOCTYPE html><html lang="en"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
@@ -388,7 +388,7 @@ export async function renderBreed(slugParam, request) {
   const c = {
     path: `/only-floofs/breed/${slug}`, emoji: sp === "cat" ? "🐱" : "🐶", oneLabel: display.toLowerCase(),
     aboutLabel: display, facts,
-    title: `Cute ${display} Pictures — ${display} photos on Only Floofs`, h1: `Cute ${display} pictures`,
+    title: `Cute ${display} Pictures · ${display} photos on Only Floofs`, h1: `Cute ${display} pictures`,
     lead: facts
       ? `${firstSentence} Below are real ${display}s shared by their owners on Only Floofs, updated as new ones are posted.`
       : `Real ${display}s, shared by their owners on Only Floofs and updated as new ones are posted. Every photo passed moderation, so it's all genuine ${display} cuteness, with thousands more pets in the free app.`,
@@ -430,7 +430,7 @@ export async function renderSpecies(speciesParam, request) {
   const one = display.toLowerCase(), many = plural(one);
   const c = {
     path: `/only-floofs/animals/${slug}`, emoji: "🐾", oneLabel: one,
-    title: `Cute ${plural(display)} — ${many} on Only Floofs`, h1: `Cute ${many}`,
+    title: `Cute ${plural(display)} · ${many} on Only Floofs`, h1: `Cute ${many}`,
     lead: `It's not only paws: meet the ${many} of Only Floofs. Real ${many} shared by their owners and updated as new ones are posted, with thousands of pets of every kind in the free app.`,
     desc: `Cute ${many} on Only Floofs. Real ${many} shared by their owners. It's not only paws, every animal is welcome.`,
     kw: `cute ${many}, ${many}, ${one} pictures, cute pets, not only paws, only floofs`,

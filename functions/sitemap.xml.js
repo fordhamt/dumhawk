@@ -19,6 +19,8 @@ const API = "https://d36iyq17my087a.cloudfront.net";
 
 // Static pages worth indexing, with a rough priority + change cadence.
 const STATIC = [
+  // The brand/root page: thin but real, and the crawl entry point.
+  { loc: `${SITE}/`, priority: "0.5", changefreq: "monthly" },
   { loc: `${SITE}/only-floofs/`, priority: "1.0", changefreq: "daily" },
   { loc: `${SITE}/only-floofs/cats`, priority: "0.9", changefreq: "daily" },
   { loc: `${SITE}/only-floofs/dogs`, priority: "0.9", changefreq: "daily" },
@@ -28,6 +30,7 @@ const STATIC = [
   { loc: `${SITE}/only-floofs/support`, priority: "0.3", changefreq: "monthly" },
   { loc: `${SITE}/only-floofs/privacy`, priority: "0.2", changefreq: "yearly" },
   { loc: `${SITE}/only-floofs/terms`, priority: "0.2", changefreq: "yearly" },
+  { loc: `${SITE}/only-floofs/child-safety`, priority: "0.2", changefreq: "yearly" },
 ];
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
