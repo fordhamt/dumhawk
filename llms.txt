@@ -1,6 +1,6 @@
 # Only Floofs
 
-> Only Floofs is a free iOS app for discovering the internet's cutest pets: an endless feed of cats and dogs (and the occasional reptile, bird, or bunny). Browse with no account, heart your favorites, follow the pets you love, and post your own pet to climb the leaderboards. Every photo passes automatic safety moderation before it goes live.
+> Only Floofs is a free app for iPhone and Android for discovering the internet's cutest pets: an endless feed of cats and dogs (and the occasional reptile, bird, or bunny). Browse with no account, heart your favorites, follow the pets you love, and post your own pet to climb the leaderboards. Every photo passes automatic safety moderation before it goes live.
 
 ## Key pages
 - [Only Floofs home](https://dumhawk.com/only-floofs/): what the app is and how to get it.
@@ -9,8 +9,12 @@
 - [Not only paws](https://dumhawk.com/not-only-paws): reptiles, birds, bunnies, and every other animal.
 - [Sitemap](https://dumhawk.com/sitemap.xml): full list of pages, including individual pet profiles.
 
+## Get the app
+- [App Store](https://apps.apple.com/app/only-floofs/id6781334218): free for iPhone and iPad.
+- [Google Play](https://play.google.com/store/apps/details?id=com.onlyfloofs.app): free for Android phones and tablets.
+
 ## Facts
-- Platform: iOS (iPhone and iPad). Free on the App Store.
+- Platform: iOS (iPhone and iPad) and Android (phones and tablets). Free on the App Store and on Google Play. Same app, same community, same pets on both.
 - No account required to browse; sign in only to post a pet or follow.
 - Features: endless feed, swipe deck, double-tap hearts, pet profiles, leaderboards (daily, weekly, all-time, by species, breed, and region), Pet of the Day, and a daily Lucky Floof spotlight.
 - Safety: every uploaded photo is automatically checked before it can appear publicly.

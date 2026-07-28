@@ -7,3 +7,10 @@
 /floofs/* /only-floofs/:splat 301
 /onlyfloofs /only-floofs/ 301
 /onlyfloofs/* /only-floofs/:splat 301
+
+# Store shortlinks, so a bio or a spoken mention can point somewhere sayable.
+# 302 on purpose: these are conveniences, not canonical moves, and the store
+# URLs are the kind of thing that changes.
+/android https://play.google.com/store/apps/details?id=com.onlyfloofs.app 302
+/play https://play.google.com/store/apps/details?id=com.onlyfloofs.app 302
+/ios https://apps.apple.com/app/only-floofs/id6781334218 302
