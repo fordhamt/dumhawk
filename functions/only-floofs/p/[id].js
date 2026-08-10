@@ -49,6 +49,8 @@ const BADGE = "https://tools.applemediaservices.com/api/badges/download-on-the-a
 // Stat icons in the app's brand colors (dark-theme variants): heart = flamingo pink,
 // paw = mint/teal — so they match the in-app reaction colors instead of grey emoji.
 const HEART = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF4D86" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>`;
+// Kept for future use: the card used to show a paw glyph for the (now retired)
+// like count, and the .ic styling is shared with the heart.
 const PAW = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true" fill="#1FEFC0"><ellipse cx="5.5" cy="11" rx="2" ry="2.6"/><ellipse cx="9.5" cy="6.8" rx="2" ry="2.7"/><ellipse cx="14.5" cy="6.8" rx="2" ry="2.7"/><ellipse cx="18.5" cy="11" rx="2" ry="2.6"/><path d="M12 11.4c-2.6 0-4.8 1.9-5.2 4.3-.3 1.7 1 3.3 2.7 3.3.9 0 1.7-.5 2.5-.5s1.6.5 2.5.5c1.7 0 3-1.6 2.7-3.3-.4-2.4-2.6-4.3-5.2-4.3z"/></svg>`;
 
 const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) =>
@@ -106,8 +108,22 @@ function page(post, canonical, related = [], rawOg = false) {
   // the plain photo (a branded card there reads like an ad; the sub prefers raw).
   const photo = post?.imageURL || post?.thumbURL || `${SITE}/assets/floofs/loki-main.jpg`;
   const ogImg = rawOg ? photo : (post?.cardURL || photo);
-  const hearts = (post?.hearts || 0).toLocaleString();
-  const likes = (post?.likes || 0).toLocaleString();
+  // Zoomies (clips): imageURL is the moderated POSTER still, so the card and
+  // og:image above already show a real frame. When the approved clip itself is
+  // public we also advertise it via og:video, so platforms that render inline
+  // video (iMessage, WhatsApp, Telegram, X) play the loop; everything else keeps
+  // the poster unfurl.
+  // Prefer the BRANDED rendition (Only Floofs wordmark burned into the corner)
+  // wherever the video itself travels: the og:video that autoplays inline in
+  // iMessage/WhatsApp/X, and the on-page player below. Clips processed before
+  // the branded pass carry no clipBrandURL and fall back to the clean file,
+  // which is exactly what shares got before.
+  const clip = post?.kind === "clip" && post?.clipURL
+    ? (post.clipBrandURL || post.clipURL) : null;
+  // Hearts and likes are ONE reaction now, and the merged count is the sum. Posts
+  // the self-heal cron has folded carry likes = 0, so this never double counts.
+  const heartCount = (post?.hearts || 0) + (post?.likes || 0);
+  const hearts = heartCount.toLocaleString();
 
   // <title> keeps the breed (search snippet). The social card title leads with the pet.
   const descr = breed ? breed : (species || "pet");
@@ -120,8 +136,8 @@ function page(post, canonical, related = [], rawOg = false) {
   const who = [breed, place && `from ${place}`].filter(Boolean).join(" ");
   const desc = post
     ? (caption
-        ? `“${caption}” — ${name}${who ? `, a ${who}` : ""}, on Only Floofs. ${hearts} hearts, ${likes} likes.`
-        : `${name} is a ${who || descr} on Only Floofs${posted ? `, shared ${posted}` : ""}. ${hearts} hearts, ${likes} likes.`)
+        ? `“${caption}” by ${name}${who ? `, a ${who}` : ""}, on Only Floofs. ${hearts} hearts.`
+        : `${name} is a ${who || descr} on Only Floofs${posted ? `, shared ${posted}` : ""}. ${hearts} hearts.`)
     : "An endless feed of the internet's cutest pets. Heart your favorites, follow the floofs you love, and make your own pet famous.";
 
   // Thin-page gate: if a pet has nothing unique to say, keep it crawlable but out of
@@ -160,8 +176,9 @@ function page(post, canonical, related = [], rawOg = false) {
       "name": `${name}${breed ? `, a ${breed}` : ""}`,
       ...(bio ? { "description": bio } : {})
     },
+    // One reaction type now, so the merged heart count IS the like/reaction count.
     "interactionStatistic": [
-      { "@type": "InteractionCounter", "interactionType": "https://schema.org/LikeAction", "userInteractionCount": post?.likes || 0 },
+      { "@type": "InteractionCounter", "interactionType": "https://schema.org/LikeAction", "userInteractionCount": heartCount },
       { "@type": "InteractionCounter", "interactionType": "https://schema.org/CommentAction", "userInteractionCount": post?.comments || 0 }
     ],
     "creditText": "Only Floofs",
@@ -197,7 +214,16 @@ function page(post, canonical, related = [], rawOg = false) {
     ]
   } : null;
 
-  const store = `<a class="store" href="${esc(APPSTORE)}" aria-label="Download Only Floofs on the App Store"><img src="${BADGE}" alt="Download on the App Store"></a>`;
+  // BOTH stores, always (2026-08-09). Every share used to dead-end an Android
+  // friend: an Android user shares a floof, their Android friend taps it, and
+  // the only call to action was the App Store. NOT user-agent sniffed on
+  // purpose: this response edge-caches for 5 minutes per URL with no Vary, so
+  // a UA-picked badge would be frozen for whichever platform hit the URL
+  // first. Two badges is cache-safe and correct for desktop too.
+  const PLAY = "https://play.google.com/store/apps/details?id=com.onlyfloofs.app";
+  const PLAY_BADGE = "https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png";
+  const store = `<a class="store" href="${esc(APPSTORE)}" aria-label="Download Only Floofs on the App Store"><img src="${BADGE}" alt="Download on the App Store"></a>`
+    + `<a class="store" href="${PLAY}" aria-label="Get Only Floofs on Google Play"><img src="${PLAY_BADGE}" alt="Get it on Google Play" style="height:60px;margin:-10px 0"></a>`;
 
   // ---- The substance Google was missing -------------------------------------
   // A real <h1>, the owner's caption, and a plain-English factual line. All built
@@ -218,7 +244,7 @@ function page(post, canonical, related = [], rawOg = false) {
     ${caption ? `<blockquote class="cap">${esc(caption)}</blockquote>` : ""}
     ${facts.length ? `<p class="facts">${esc(facts.join(" "))}</p>` : ""}
     ${bio ? `<p class="bio">${esc(bio)}</p>` : ""}
-    <p class="love">${hearts} hearts · ${likes} likes from the Only Floofs community.</p>
+    <p class="love">${hearts} hearts from the Only Floofs community.</p>
   </section>` : "";
 
   // Pinterest "Save" — pet photos are catnip on Pinterest (a visual search engine
@@ -229,12 +255,12 @@ function page(post, canonical, related = [], rawOg = false) {
   // image; the old alt was the same name+breed string as every other page. Prefer
   // the real thing, fall back to name+breed.
   const photoAlt = altText
-    ? `${name}${breed ? ` the ${breed}` : ""} — ${altText}`
+    ? `${name}${breed ? ` the ${breed}` : ""}. ${altText}`
     : `${name}${breed ? ` the ${breed}` : ""}`;
   const pin = post ? `<a class="pin" href="https://www.pinterest.com/pin/create/button/?url=${encodeURIComponent(canonical)}&media=${encodeURIComponent(photo)}&description=${encodeURIComponent(pinDesc)}" target="_blank" rel="nofollow noopener">Save to Pinterest</a>` : "";
 
   // The pet community on Reddit — every share page doubles as a subreddit funnel.
-  const reddit = `<p class="sub"><a href="https://www.reddit.com/r/onlyfloofs/" rel="noopener">Join the community — r/onlyfloofs</a></p>`;
+  const reddit = `<p class="sub"><a href="https://www.reddit.com/r/onlyfloofs/" rel="noopener">Join the community on r/onlyfloofs</a></p>`;
 
   // Related pets of the same species + a link to the matching gallery, so the
   // page links onward instead of dead-ending.
@@ -251,11 +277,12 @@ function page(post, canonical, related = [], rawOg = false) {
   <div class="card">
     <div class="brand"><img src="${ICON}" alt="" width="30" height="30"><span>Only Floofs</span></div>
     <div class="frame">
-      <img class="photo" src="${esc(photo)}" alt="${esc(photoAlt)}" width="360" height="360" data-pin-description="${esc(pinDesc)}">
+      ${clip ? `<video class="photo" src="${esc(clip)}" poster="${esc(photo)}" autoplay muted loop playsinline width="360" height="360" aria-label="${esc(photoAlt)}"></video>`
+             : `<img class="photo" src="${esc(photo)}" alt="${esc(photoAlt)}" width="360" height="360" data-pin-description="${esc(pinDesc)}">`}
       <div class="scrim"></div>
       <div class="meta">
         <div class="name">${esc(name)}</div>
-        <div class="stats"><span>${HEART}<b>${hearts}</b></span><span>${PAW}<b>${likes}</b></span></div>
+        <div class="stats"><span>${HEART}<b>${hearts}</b></span></div>
       </div>
     </div>
     ${store}
@@ -284,10 +311,13 @@ function page(post, canonical, related = [], rawOg = false) {
 <meta property="og:site_name" content="Only Floofs">
 <meta property="og:title" content="${esc(cardTitle)}">
 <meta property="og:description" content="${esc(desc)}">
-<meta property="og:type" content="website">
+<meta property="og:type" content="${clip ? "video.other" : "website"}">
 <meta property="og:image" content="${esc(ogImg)}">
 <meta property="og:image:alt" content="${esc(name)}${breed ? esc(` the ${breed}`) : ""}">
-<meta property="og:url" content="${esc(canonical)}">
+${clip ? `<meta property="og:video" content="${esc(clip)}">
+<meta property="og:video:secure_url" content="${esc(clip)}">
+<meta property="og:video:type" content="video/mp4">
+` : ""}<meta property="og:url" content="${esc(canonical)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(cardTitle)}">
 <meta name="twitter:description" content="${esc(desc)}">
